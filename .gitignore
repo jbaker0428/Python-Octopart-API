@@ -1,0 +1,7 @@
+*.js
+*.pyc
+desktop.ini
+~$*.*
+.*project
+*.exe
+*.txt
