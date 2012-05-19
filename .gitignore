@@ -1,4 +1,4 @@
-*.js
+*.js*
 *.pyc
 desktop.ini
 ~$*.*
