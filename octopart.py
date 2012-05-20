@@ -31,7 +31,8 @@ class OctopartException(Exception):
 			  1: 'Passed an invalid argument for this method.', \
 			  2: 'Malformed argument.', \
 			  3: 'An argument was passed more than once.', \
-			  4: 'Argument value out of valid range.'}
+			  4: 'Numeric argument value out of valid range.', \
+			  5: 'String argument outside of allowed length.'}
 	def __init__(self, source, args, error_number):
 		self.source = source
 		self.arguments = args
@@ -134,7 +135,8 @@ class Octopart:
 		@param args: Dictionary of argumets to check
 		@param required_args: frozen set of all argument names which must be present
 		@param arg_types: Dictionary which contains the correct data type for each argument
-		@param arg_ranges: Dictionary which contains range() calls for any numeric arguments with a limited range
+		@param arg_ranges: Dictionary which contains range() calls for any numeric arguments with a limited range.
+		Can also be used to constrain string argument length. For string arguments, contains a (min, max) pair.
 		@raise OctopartException: If any syntax errors are found.'''
 		valid_args = frozenset(arg_types.keys())
 		args_set = set(args.keys())
@@ -151,7 +153,10 @@ class Octopart:
 				if type(args[key]) is not arg_types[key]:
 					raise OctopartException(Octopart.validate_args.__name__, args, 2)
 			if key in arg_ranges.keys():
-				if args[key] not in arg_ranges[key]:
+				if arg_types[key] is StringType:
+					if len(args[key]) < arg_ranges[key][0] or len(args[key]) > arg_ranges[key][1]:
+						raise OctopartException(Octopart.validate_args.__name__, args, 5)
+				elif args[key] not in arg_ranges[key]:
 					raise OctopartException(Octopart.validate_args.__name__, args, 4)
 		if len(args_set) != len(args.keys()):
 			raise OctopartException(Octopart.validate_args.__name__, args, 3)
