@@ -197,7 +197,7 @@ class Octopart:
 					v = json.dumps(val, separators=(',',':'))
 				else:
 					v = val
-				arg_strings.append(arg + '=' + v)
+				arg_strings.append(arg + '=' + str(v))
 
 
 			req_url = req_url + '?' + '&'.join(arg_strings)
