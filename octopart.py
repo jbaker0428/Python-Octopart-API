@@ -82,11 +82,15 @@ class Octopart:
 		if len(args) > 0:
 			first_arg = True
 			for arg, val in args.items():
+				if type(val) is BooleanType:
+					v = int(val)
+				else:
+					v = val
 				if first_arg is True:
 					first_arg = False
-					req_url = req_url + '?' + arg + '=' + val
+					req_url = req_url + '?' + arg + '=' + v
 				else:
-					req_url = req_url + '&' + arg + '=' + val
+					req_url = req_url + '&' + arg + '=' + v
 		
 		response = urllib2.urlopen(req_url).read() 
 		json_obj = json.loads(response)
