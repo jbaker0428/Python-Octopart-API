@@ -58,9 +58,7 @@ class Octopart:
 		response = urllib2.urlopen(req_url).read() 
 		json_obj = json.loads(response)
 		return json_obj
-	
-	# TODO: JSON list arguments will be passed as a python list, need to convert to string?
-	#if type(arg val) in arg_types[arg]
+
 	def categories_get(self, args):
 		''' Fetch a category object by its id. '''
 		method = 'categories/get'
