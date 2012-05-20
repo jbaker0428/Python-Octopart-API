@@ -33,7 +33,10 @@ class OctopartException(Exception):
 			  3: 'An argument was passed more than once.', \
 			  4: 'Numeric argument value out of valid range.', \
 			  5: 'String argument outside of allowed length.', \
-			  6: 'Value of (start+limit) in a bom/match line argument exceeds 100.'}
+			  6: 'Value of (start+limit) in a bom/match line argument exceeds 100.', \
+			  7: 'Unexpected HTTP Error 404', \
+			  8: 'Unexpected HTTP Error 503'}
+	
 	def __init__(self, source, args, required_args, arg_types, arg_ranges, error_number):
 		self.source = source
 		self.arguments = args
@@ -208,7 +211,7 @@ class Octopart:
 
 	def categories_get(self, args):
 		''' Fetch a category object by its id. 
-		@return: An OctopartCategory object. '''
+		@return: An OctopartCategory object or None. '''
 		method = 'categories/get'
 		required_args = frozenset(('id',))
 		arg_types = {'id': IntType}
@@ -219,7 +222,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.categories_get.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				return None
+			elif e.code == 503:
+				raise OctopartException(self.categories_get.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		return OctopartCategory.new_from_dict(json_obj)
 	
 	def categories_get_multi(self, args):
@@ -280,7 +291,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.parts_get.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				return None
+			elif e.code == 503:
+				raise OctopartException(self.parts_get.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		return OctopartPart.new_from_dict(json_obj)
 	
 	def parts_get_multi(self, args):
@@ -397,7 +416,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.partattributes_get.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				return None
+			elif e.code == 503:
+				raise OctopartException(self.partattributes_get.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		return OctopartPartAttribute.new_from_dict(json_obj)
 	
 	def partattributes_get_multi(self, args):
