@@ -32,7 +32,8 @@ class OctopartException(Exception):
 			  2: 'Malformed argument.', \
 			  3: 'An argument was passed more than once.', \
 			  4: 'Numeric argument value out of valid range.', \
-			  5: 'String argument outside of allowed length.'}
+			  5: 'String argument outside of allowed length.', \
+			  6: 'Value of (start+limit) in a bom/match line argument exceeds 100.'}
 	def __init__(self, source, args, error_number):
 		self.source = source
 		self.arguments = args
@@ -405,3 +406,57 @@ class Octopart:
 		for attribute in json_obj:
 			attributes.append(OctopartPartAttribute.new_from_dict(attribute))
 		return attributes
+	
+	def bom_match(self, args):
+		''' Match a list of part numbers to Octopart part objects. 
+		@return: A list of 3-item dicts containing a list of OctopartParts, 
+		a reference string, and a status string. '''
+		method = 'bom/match'
+		required_args = frozenset('lines',)
+		arg_types = {'lines': ListType, \
+					'optimize.return_stubs' : BooleanType, \
+					'optimize.hide_datasheets' : BooleanType, \
+					'optimize.hide_descriptions' : BooleanType, \
+					'optimize.hide_images' : BooleanType, \
+					'optimize.hide_hide_offers' : BooleanType, \
+					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
+					'optimize.hide_specs' : BooleanType}
+		arg_ranges = {}
+		
+		# DictType arguments need to be validated just like the normal args dict
+		lines_required_args = frozenset('reference',)
+		lines_arg_types = {'q': StringType, \
+					'mpn' : StringType, \
+					'manufacturer' : StringType, \
+					'sku' : StringType, \
+					'supplier' : StringType, \
+					'mpn_or_sku' : StringType, \
+					'start' : IntType, \
+					'limit' : IntType, \
+					'reference' : StringType}
+		lines_arg_ranges = {'limit' : range(21)}
+		for line in args['lines']:
+			try:
+				Octopart.validate_args(line, lines_required_args, lines_arg_types, lines_arg_ranges)
+			except OctopartException as e:
+				raise OctopartException(self.bom_match.__name__, line, e.error_number)
+			# Method-specific check not covered by validate_args:
+			if (line['start'] + line['match']) > 100:
+				raise OctopartException(self.bom_match.__name__, line, 6)
+		
+		# Now check the primary args dict as normal
+		try:
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
+		except OctopartException as e:
+			raise OctopartException(self.bom_match.__name__, args, e.error_number)
+		
+		
+		json_obj = self.__get(method, args)
+		results = []
+		for result in json_obj['results']:
+			items = []
+			for item in result['items']:
+				items.append(OctopartPart.new_from_dict(part))
+			results.append({'items' : items, 'reference' : result['reference'], 'status' : result['status']})
+		
+		return results
