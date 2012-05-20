@@ -189,7 +189,8 @@ class Octopart:
 		return json_obj
 
 	def categories_get(self, args):
-		''' Fetch a category object by its id. '''
+		''' Fetch a category object by its id. 
+		@return: An OctopartCategory object. '''
 		method = 'categories/get'
 		required_args = frozenset('id',)
 		arg_types = {'id': IntType}
@@ -200,10 +201,12 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.categories_get.__name__, args, e.error_number)
 		
-		return self.__get(method, args)
+		json_obj = self.__get(method, args)
+		return OctopartCategory.new_from_dict(json_obj)
 	
 	def categories_get_multi(self, args):
-		''' Fetch multiple category objects by their ids. '''
+		''' Fetch multiple category objects by their ids. 
+		@return: A list of OctopartCategory objects. '''
 		method = 'categories/get_multi'
 		required_args = frozenset('ids',)
 		arg_types = {'ids': ListType}
@@ -214,10 +217,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.categories_get_muti.__name__, args, e.error_number)
 		
-		return self.__get(method, args)
+		json_obj = self.__get(method, args)
+		categories = []
+		for category in json_obj:
+			categories.append(OctopartCategory.new_from_dict(category))
+		return categories
 	
 	def categories_search(self, args):
-		''' Execute search over all category objects. '''
+		''' Execute search over all result objects. 
+		@return: A list of [OctopartCategory, highlight_text] pairs. '''
 		method = 'categories/search'
 		required_args = frozenset()
 		arg_types = {'q': StringType, 'start' : IntType, 'limit' : IntType, 'ancestor_id' : IntType}
@@ -228,10 +236,16 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.categories_search.__name__, args, e.error_number)
 		
-		return self.__get(method, args)
+		json_obj = self.__get(method, args)
+		categories = []
+		for result in json_obj['results']:
+			new_category = OctopartCategory.new_from_dict(result['item'])
+			categories.append([new_category, result['highlight']])
+		return categories
 	
 	def parts_get(self, args):
-		''' Fetch a part object by its id. '''
+		''' Fetch a part object by its id. 
+		@return: An OctopartPart object. '''
 		method = 'parts/get'
 		required_args = frozenset('uid',)
 		arg_types = {'uid': IntType, \
@@ -248,10 +262,12 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.parts_get.__name__, args, e.error_number)
 		
-		return self.__get(method, args)
+		json_obj = self.__get(method, args)
+		return OctopartPart.new_from_dict(json_obj)
 	
 	def parts_get_multi(self, args):
-		''' Fetch multiple part objects by their ids. '''
+		''' Fetch multiple part objects by their ids. 
+		@return: A list of OctopartPart objects. '''
 		method = 'parts/get_multi'
 		required_args = frozenset('uids',)
 		arg_types = {'uids': StringType, \
@@ -268,10 +284,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.parts_get_multi.__name__, args, e.error_number)
 		
-		return self.__get(method, args)
+		json_obj = self.__get(method, args)
+		parts = []
+		for part in json_obj:
+			parts.append(OctopartPart.new_from_dict(part))
+		return parts
 	
 	def parts_search(self, args):
-		''' Execute a search over all part objects. '''
+		''' Execute a search over all result objects. 
+		@return: A list of [OctopartPart, highlight_text] pairs. '''
 		method = 'parts/search'
 		required_args = frozenset()
 		arg_types = {'q': StringType, \
@@ -303,5 +324,10 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.parts_search.__name__, args, e.error_number)
 		
-		return self.__get(method, args)
+		json_obj = self.__get(method, args)
+		parts = []
+		for result in json_obj['results']:
+			new_part = OctopartPart.new_from_dict(result['item'])
+			parts.append([new_part, result['highlight']])
+		return parts
 
