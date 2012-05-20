@@ -151,7 +151,7 @@ class Octopart:
 		
 		if required_args.issubset(args_set) is False:
 			raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 0)
-		if args_set.issuperset(valid_args):
+		if args_set.issubset(valid_args) is False:
 			raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 1)
 		for key in args_set:
 			if arg_types[key] is StringType:
@@ -210,7 +210,7 @@ class Octopart:
 		''' Fetch a category object by its id. 
 		@return: An OctopartCategory object. '''
 		method = 'categories/get'
-		required_args = frozenset('id',)
+		required_args = frozenset(('id',))
 		arg_types = {'id': IntType}
 		arg_ranges = {}
 		
@@ -226,7 +226,7 @@ class Octopart:
 		''' Fetch multiple category objects by their ids. 
 		@return: A list of OctopartCategory objects. '''
 		method = 'categories/get_multi'
-		required_args = frozenset('ids',)
+		required_args = frozenset(('ids',))
 		arg_types = {'ids': ListType}
 		arg_ranges = {}
 		
@@ -265,7 +265,7 @@ class Octopart:
 		''' Fetch a part object by its id. 
 		@return: An OctopartPart object. '''
 		method = 'parts/get'
-		required_args = frozenset('uid',)
+		required_args = frozenset(('uid',))
 		arg_types = {'uid': IntType, \
 					'optimize.hide_datasheets' : BooleanType, \
 					'optimize.hide_descriptions' : BooleanType, \
@@ -287,7 +287,7 @@ class Octopart:
 		''' Fetch multiple part objects by their ids. 
 		@return: A list of OctopartPart objects. '''
 		method = 'parts/get_multi'
-		required_args = frozenset('uids',)
+		required_args = frozenset(('uids',))
 		arg_types = {'uids': StringType, \
 					'optimize.hide_datasheets' : BooleanType, \
 					'optimize.hide_descriptions' : BooleanType, \
@@ -354,7 +354,7 @@ class Octopart:
 		Optimized for speed (useful for auto-complete features).
 		@return: A list of OctopartPart objects. '''
 		method = 'parts/suggest'
-		required_args = frozenset('q',)
+		required_args = frozenset(('q',))
 		arg_types = {'q': StringType, 'limit' : IntType}
 		arg_ranges = {'q': (2, float("inf")), 'limit' : range(1, 11)}
 		
@@ -373,7 +373,7 @@ class Octopart:
 		''' Match (manufacturer name, mpn) to part uid. 
 		@return: a list of (part uid, manufacturer displayname, mpn) tuples. '''
 		method = 'parts/match'
-		required_args = frozenset('manufacturer_name', 'mpn')
+		required_args = frozenset(('manufacturer_name', 'mpn'))
 		arg_types = {'manufacturer_name': StringType, 'mpn' : StringType}
 		arg_ranges = {}
 		
@@ -388,7 +388,7 @@ class Octopart:
 		''' Fetch a partattribute object by its fieldname. 
 		@return: An OctopartPartAttribute object. '''
 		method = 'partattributes/get'
-		required_args = frozenset('fieldname',)
+		required_args = frozenset(('fieldname',))
 		arg_types = {'fieldname': StringType}
 		arg_ranges = {}
 		
@@ -404,7 +404,7 @@ class Octopart:
 		''' Fetch multiple partattributes objects by their fieldnames. 
 		@return: A list of OctopartPartAttribute objects. '''
 		method = 'partattributes/get_multi'
-		required_args = frozenset('ids',)
+		required_args = frozenset(('ids',))
 		arg_types = {'ids': ListType}
 		arg_ranges = {}
 		
@@ -424,7 +424,7 @@ class Octopart:
 		@return: A list of 3-item dicts containing a list of OctopartParts, 
 		a reference string, and a status string. '''
 		method = 'bom/match'
-		required_args = frozenset('lines',)
+		required_args = frozenset(('lines',))
 		arg_types = {'lines': ListType, \
 					'optimize.return_stubs' : BooleanType, \
 					'optimize.hide_datasheets' : BooleanType, \
@@ -436,7 +436,7 @@ class Octopart:
 		arg_ranges = {}
 		
 		# DictType arguments need to be validated just like the normal args dict
-		lines_required_args = frozenset('reference',)
+		lines_required_args = frozenset(('reference',))
 		lines_arg_types = {'q': StringType, \
 					'mpn' : StringType, \
 					'manufacturer' : StringType, \
