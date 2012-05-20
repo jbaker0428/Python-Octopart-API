@@ -42,12 +42,24 @@ class OctopartException(Exception):
 		return repr(str)
 
 class OctopartBrand:
+	@staticmethod
+	def new_from_dict(brand_dict):
+		new = OctopartBrand(brand_dict['id'], brand_dict['displayname'], brand_dict['homepage'])
+		return new
+	
 	def __init__(self, id, dispname, homepage):
 		self.id = id
 		self.displayname = dispname
 		self.homepage_url = homepage
 
 class OctopartCategory:
+	@staticmethod
+	def new_from_dict(category_dict):
+		new = OctopartCategory(category_dict['id'], category_dict['parent_id'], category_dict['nodename'], \
+							category_dict['images'], category_dict['children_ids'], category_dict['ancestor_ids'], \
+							category_dict['ancestors'], category_dict['num_parts'])
+		return new
+	
 	def __init__(self, id, parent_id, nodename, images, children_ids, ancestor_ids, ancestors, num_parts):
 		self.id = id
 		self.parent_id = parent_id
@@ -59,6 +71,22 @@ class OctopartCategory:
 		self.num_parts = num_parts
 		
 class OctopartPart:
+	@staticmethod
+	def new_from_dict(part_dict):
+		# Convert everything to class instances
+		part_dict['manufacturer'] = OctopartBrand.new_from_dict(part_dict['manufacturer'])
+		for offer in part_dict['offers']:
+			offer['supplier'] = OctopartBrand.new_from_dict(offer['supplier'])
+		for spec in part_dict['specs']:
+			spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
+		
+		new = OctopartPart(part_dict['uid'], part_dict['mpn'], part_dict['manufacturer'], \
+						part_dict['detail_url'], part_dict['avg_price'], part_dict['avg_avail'], \
+						part_dict['market_status'], part_dict['num_suppliers'], \
+						part_dict['num_authsupplier'], part_dict['short_description'], \
+						part_dict['category_ids'], part_dict['images'], part_dict['datasheets'], part_dict['descriptions'], part_dict['hyperlinks'], part_dict['offers'], part_dict['specs'])
+		return new
+	
 	def __init__(self, uid, mpn, manufacturer, detail_url, avg_price, avg_avail, \
 				market_status, num_suppliers, num_authsuppliers, short_description, \
 				category_ids, images, datasheets, descriptions, hyperlinks, offers, specs):
@@ -83,6 +111,12 @@ class OctopartPart:
 class OctopartPartAttribute:
 	TYPE_TEXT = 'text'
 	TYPE_NUMBER = 'number'
+	
+	@staticmethod
+	def new_from_dict(attribute_dict):
+		new = OctopartPartAttribute(attribute_dict['fieldname'], attribute_dict['displayname'], attribute_dict['type'], attribute_dict['metadata'])
+		return new
+	
 	def __init__(self, fieldname, displayname, type, metadata):
 		self.fieldname = fieldanme
 		self.displayname = displayname
