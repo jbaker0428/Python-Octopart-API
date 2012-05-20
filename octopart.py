@@ -92,6 +92,8 @@ class Octopart:
 			for arg, val in args.items():
 				if type(val) is BooleanType:
 					v = int(val)
+				elif type(val) is ListType:
+					v = json.dumps(val, separators=(',',':'))
 				else:
 					v = val
 				if first_arg is True:
