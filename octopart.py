@@ -41,6 +41,54 @@ class OctopartException(Exception):
 		str = errors[self.error] + ' Source: ' + self.source + ' Passed arguments: ' + self.arguments
 		return repr(str)
 
+class OctopartBrand:
+	def __init__(self, id, dispname, homepage):
+		self.id = id
+		self.displayname = dispname
+		self.homepage_url = homepage
+
+class OctopartCategory:
+	def __init__(self, id, parent_id, nodename, images, children_ids, ancestor_ids, ancestors, num_parts):
+		self.id = id
+		self.parent_id = parent_id
+		self.nodename = nodename
+		self.images = images	# List of dicts of URLs
+		self.children_ids = children_ids	# List of child node ids
+		self.ancestor_ids = ancestor_ids	# Sorted list of ancestor node ids (immediate parent first)
+		self.ancestors = ancestors	# Sorted list of category objects
+		self.num_parts = num_parts
+		
+class OctopartPart:
+	def __init__(self, uid, mpn, manufacturer, detail_url, avg_price, avg_avail, \
+				market_status, num_suppliers, num_authsuppliers, short_description, \
+				category_ids, images, datasheets, descriptions, hyperlinks, offers, specs):
+		self.uid = uid
+		self.mpn = mpn
+		self.manufacturer = manufacturer
+		self.detail_url = detail_url
+		self.avg_price = avg_price
+		self.avg_avail = avg_avail
+		self.market_status = market_status
+		self.num_suppliers = num_suppliers
+		self.num_authsuppliers = num_authsuppliers
+		self.short_description = short_description
+		self.category_ids = category_ids
+		self.images = images
+		self.datasheets = datasheets
+		self.descriptions = descriptions
+		self.hyperlinks = hyperlinks
+		self.offers = offers
+		self.specs = specs
+
+class OctopartPartAttribute:
+	TYPE_TEXT = 'text'
+	TYPE_NUMBER = 'number'
+	def __init__(self, fieldname, displayname, type, metadata):
+		self.fieldname = fieldanme
+		self.displayname = displayname
+		self.type = type
+		self.metadata = metadata
+
 class Octopart:
 	''' A simple client frontend to tho Octopart public REST API. 
 	For detailed API documentation, refer to http://octopart.com/api/documentation'''
