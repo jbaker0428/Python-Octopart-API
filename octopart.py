@@ -162,8 +162,10 @@ class Octopart:
 		if len(args_set) != len(args.keys()):
 			raise OctopartException(Octopart.validate_args.__name__, args, 3)
 	
-	def __init__(self, apikey=None):
+	def __init__(self, apikey=None, callback=None, pretty_print=False):
 		self.apikey = apikey
+		self.callback = callback
+		self.pretty_print = pretty_print
 	
 	def __get(self, method, args):
 		''' Makes a GET request with the given method and arguments. 
@@ -175,6 +177,10 @@ class Octopart:
 		req_url = Octopart.api_url + method
 		if self.apikey is not None:
 			args['apikey'] = self.apikey
+		if self.callback is not None:
+			args['callback'] = self.callback
+		if self.pretty_print is True:
+			args['pretty_print'] = self.pretty_print
 		if len(args) > 0:
 			first_arg = True
 			for arg, val in args.items():
