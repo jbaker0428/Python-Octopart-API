@@ -108,7 +108,7 @@ class Octopart:
 		''' Fetch a category object by its id. '''
 		method = 'categories/get'
 		required_args = frozenset('id',)
-		arg_types = {'id': StringType}
+		arg_types = {'id': IntType}
 		arg_ranges = {}
 		
 		try:
@@ -150,7 +150,7 @@ class Octopart:
 		''' Fetch a part object by its id. '''
 		method = 'parts/get'
 		required_args = frozenset('uid',)
-		arg_types = {'uid': StringType, \
+		arg_types = {'uid': IntType, \
 					'optimize.hide_datasheets' : BooleanType, \
 					'optimize.hide_descriptions' : BooleanType, \
 					'optimize.hide_images' : BooleanType, \
@@ -193,9 +193,9 @@ class Octopart:
 		arg_types = {'q': StringType, \
 					'start' : IntType, \
 					'limit' : IntType, \
-					'filters' : DictType, \
-					'rangedfilters' : DictType, \
-					'sortby' : DictType, \
+					'filters' : ListType, \
+					'rangedfilters' : ListType, \
+					'sortby' : ListType, \
 					'drilldown.include' : BooleanType, \
 					'drilldown.fieldname' : StringType, \
 					'drilldown.facets.prefix' : StringType, \
