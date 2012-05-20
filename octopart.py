@@ -246,7 +246,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.categories_get_muti.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				raise OctopartException(self.categories_get_multi.__name__, args, required_args, arg_types, arg_ranges, 7)
+			elif e.code == 503:
+				raise OctopartException(self.categories_get_multi.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		categories = []
 		for category in json_obj:
 			categories.append(OctopartCategory.new_from_dict(category))
@@ -265,7 +273,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.categories_search.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				raise OctopartException(self.categories_get_search.__name__, args, required_args, arg_types, arg_ranges, 7)
+			elif e.code == 503:
+				raise OctopartException(self.categories_get_search.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		categories = []
 		for result in json_obj['results']:
 			new_category = OctopartCategory.new_from_dict(result['item'])
@@ -321,7 +337,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.parts_get_multi.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				raise OctopartException(self.parts_get_multi.__name__, args, required_args, arg_types, arg_ranges, 7)
+			elif e.code == 503:
+				raise OctopartException(self.parts_get_multi.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		parts = []
 		for part in json_obj:
 			parts.append(OctopartPart.new_from_dict(part))
@@ -361,7 +385,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.parts_search.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				raise OctopartException(self.parts_search.__name__, args, required_args, arg_types, arg_ranges, 7)
+			elif e.code == 503:
+				raise OctopartException(self.parts_search.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		parts = []
 		for result in json_obj['results']:
 			new_part = OctopartPart.new_from_dict(result['item'])
@@ -382,7 +414,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.parts_suggest.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				raise OctopartException(self.parts_suggest.__name__, args, required_args, arg_types, arg_ranges, 7)
+			elif e.code == 503:
+				raise OctopartException(self.parts_suggest.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		parts = []
 		for part in json_obj['results']:
 			parts.append(OctopartPart.new_from_dict(part))
@@ -400,8 +440,16 @@ class Octopart:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
 			raise OctopartException(self.parts_match.__name__, args, required_args, arg_types, arg_ranges, e.error)
-		
-		return self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				raise OctopartException(self.parts_match.__name__, args, required_args, arg_types, arg_ranges, 7)
+			elif e.code == 503:
+				raise OctopartException(self.parts_match.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
+		return json_obj
 	
 	def partattributes_get(self, args):
 		''' Fetch a partattribute object by its fieldname. 
@@ -440,7 +488,15 @@ class Octopart:
 		except OctopartException as e:
 			raise OctopartException(self.partattributes_get_multi.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				raise OctopartException(self.partattributes_get_multi.__name__, args, required_args, arg_types, arg_ranges, 7)
+			elif e.code == 503:
+				raise OctopartException(self.partattributes_get_multi.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		attributes = []
 		for attribute in json_obj:
 			attributes.append(OctopartPartAttribute.new_from_dict(attribute))
@@ -490,7 +546,15 @@ class Octopart:
 			raise OctopartException(self.bom_match.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		
-		json_obj = self.__get(method, args)
+		try:
+			json_obj = self.__get(method, args)
+		except urllib2.HTTPError as e:
+			if e.code == 404:
+				raise OctopartException(self.bom_match.__name__, args, required_args, arg_types, arg_ranges, 7)
+			elif e.code == 503:
+				raise OctopartException(self.bom_match.__name__, args, required_args, arg_types, arg_ranges, 8)
+			else:
+				raise e
 		results = []
 		for result in json_obj['results']:
 			items = []
