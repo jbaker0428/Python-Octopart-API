@@ -355,3 +355,18 @@ class Octopart:
 		for part in json_obj['results']:
 			parts.append(OctopartPart.new_from_dict(part))
 		return parts
+	
+	def parts_match(self, args):
+		''' Match (manufacturer name, mpn) to part uid. 
+		@return: a list of (part uid, manufacturer displayname, mpn) tuples. '''
+		method = 'parts/match'
+		required_args = frozenset('manufacturer_name', 'mpn')
+		arg_types = {'manufacturer_name': StringType, 'mpn' : StringType}
+		arg_ranges = {}
+		
+		try:
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
+		except OctopartException as e:
+			raise OctopartException(self.parts_get_multi.__name__, args, e.error_number)
+		
+		return self.__get(method, args)
