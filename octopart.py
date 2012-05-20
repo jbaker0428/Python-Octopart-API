@@ -53,18 +53,18 @@ class Octopart:
 		args_set = set(args.keys())
 		
 		if required_args.issubset(args_set) is False:
-			raise OctopartException(self.categories_get.__name__, args, 0)
+			raise OctopartException(Octopart.validate_args.__name__, args, 0)
 		if args_set.issuperset(valid_args):
-			raise OctopartException(self.categories_get.__name__, args, 1)
+			raise OctopartException(Octopart.validate_args.__name__, args, 1)
 		for key in args_set:
 			if arg_types[key] is StringType:
 				if isinstance(args[key], basestring) is False:
-					raise OctopartException(self.categories_get.__name__, args, 2)
+					raise OctopartException(Octopart.validate_args.__name__, args, 2)
 			else:
 				if type(args[key]) is not arg_types[key]:
-					raise OctopartException(self.categories_get.__name__, args, 2)
+					raise OctopartException(Octopart.validate_args.__name__, args, 2)
 		if len(args_set) != len(args.keys()):
-			raise OctopartException(self.categories_get.__name__, args, 3)
+			raise OctopartException(Octopart.validate_args.__name__, args, 3)
 	
 	def __init__(self, api_key=None):
 		self.api_key = api_key
@@ -105,7 +105,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types)
 		except OctopartException as e:
-			raise e
+			raise OctopartException(self.categories_get.__name__, args, e.error_number)
 		
 		return self.__get(method, args)
 	
@@ -118,7 +118,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types)
 		except OctopartException as e:
-			raise e
+			raise OctopartException(self.categories_get_muti.__name__, args, e.error_number)
 		
 		return self.__get(method, args)
 	
@@ -131,7 +131,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types)
 		except OctopartException as e:
-			raise e
+			raise OctopartException(self.categories_search.__name__, args, e.error_number)
 		
 		return self.__get(method, args)
 	
@@ -150,7 +150,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types)
 		except OctopartException as e:
-			raise e
+			raise OctopartException(self.parts_get.__name__, args, e.error_number)
 		
 		return self.__get(method, args)
 	
@@ -169,7 +169,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types)
 		except OctopartException as e:
-			raise e
+			raise OctopartException(self.parts_get_multi.__name__, args, e.error_number)
 		
 		return self.__get(method, args)
 
