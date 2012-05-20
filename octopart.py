@@ -139,7 +139,26 @@ class Octopart:
 		''' Fetch a part object by its id. '''
 		method = 'parts/get'
 		required_args = frozenset('uid',)
-		arg_types = {'id': StringType, \
+		arg_types = {'uid': StringType, \
+					'optimize.hide_datasheets' : BooleanType, \
+					'optimize.hide_descriptions' : BooleanType, \
+					'optimize.hide_images' : BooleanType, \
+					'optimize.hide_hide_offers' : BooleanType, \
+					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
+					'optimize.hide_specs' : BooleanType}
+		
+		try:
+			Octopart.validate_args(args, required_args, arg_types)
+		except OctopartException as e:
+			raise e
+		
+		return self.__get(method, args)
+	
+	def parts_get_multi(self, args):
+		''' Fetch a part object by its id. '''
+		method = 'parts/get_multi'
+		required_args = frozenset('uids',)
+		arg_types = {'uids': StringType, \
 					'optimize.hide_datasheets' : BooleanType, \
 					'optimize.hide_descriptions' : BooleanType, \
 					'optimize.hide_images' : BooleanType, \
