@@ -30,7 +30,8 @@ class OctopartException(Exception):
 	errors = {0: 'Required argument missing from method call.', \
 			  1: 'Passed an invalid argument for this method.', \
 			  2: 'Malformed argument.', \
-			  3: 'An argument was passed more than once.'}
+			  3: 'An argument was passed more than once.', \
+			  4: 'Argument value out of valid range.'}
 	def __init__(self, source, args, error_number):
 		self.source = source
 		self.arguments = args
@@ -46,8 +47,12 @@ class Octopart:
 	api_url = 'http://octopart.com/api/v2/'
 	
 	@staticmethod
-	def validate_args(args, required_args, arg_types):
+	def validate_args(args, required_args, arg_types, arg_ranges):
 		''' Checks method arguments for syntax errors. 
+		@param args: Dictionary of argumets to check
+		@param required_args: frozen set of all argument names which must be present
+		@param arg_types: Dictionary which contains the correct data type for each argument
+		@param arg_ranges: Dictionary which contains range() calls for any numeric arguments with a limited range
 		@raise OctopartException: If any syntax errors are found.'''
 		valid_args = frozenset(arg_types.keys())
 		args_set = set(args.keys())
@@ -63,6 +68,9 @@ class Octopart:
 			else:
 				if type(args[key]) is not arg_types[key]:
 					raise OctopartException(Octopart.validate_args.__name__, args, 2)
+			if key in arg_ranges.keys():
+				if args[key] not in arg_ranges[key]:
+					raise OctopartException(Octopart.validate_args.__name__, args, 4)
 		if len(args_set) != len(args.keys()):
 			raise OctopartException(Octopart.validate_args.__name__, args, 3)
 	
@@ -101,9 +109,10 @@ class Octopart:
 		method = 'categories/get'
 		required_args = frozenset('id',)
 		arg_types = {'id': StringType}
+		arg_ranges = {}
 		
 		try:
-			Octopart.validate_args(args, required_args, arg_types)
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
 			raise OctopartException(self.categories_get.__name__, args, e.error_number)
 		
@@ -114,9 +123,10 @@ class Octopart:
 		method = 'categories/get_multi'
 		required_args = frozenset('ids',)
 		arg_types = {'ids': ListType}
+		arg_ranges = {}
 		
 		try:
-			Octopart.validate_args(args, required_args, arg_types)
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
 			raise OctopartException(self.categories_get_muti.__name__, args, e.error_number)
 		
@@ -127,9 +137,10 @@ class Octopart:
 		method = 'categories/search'
 		required_args = frozenset()
 		arg_types = {'q': StringType, 'start' : IntType, 'limit' : IntType, 'ancestor_id' : IntType}
+		arg_ranges = {}
 		
 		try:
-			Octopart.validate_args(args, required_args, arg_types)
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
 			raise OctopartException(self.categories_search.__name__, args, e.error_number)
 		
@@ -146,16 +157,17 @@ class Octopart:
 					'optimize.hide_hide_offers' : BooleanType, \
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
+		arg_ranges = {}
 		
 		try:
-			Octopart.validate_args(args, required_args, arg_types)
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
 			raise OctopartException(self.parts_get.__name__, args, e.error_number)
 		
 		return self.__get(method, args)
 	
 	def parts_get_multi(self, args):
-		''' Fetch a part object by its id. '''
+		''' Fetch multiple part objects by their ids. '''
 		method = 'parts/get_multi'
 		required_args = frozenset('uids',)
 		arg_types = {'uids': StringType, \
@@ -165,9 +177,10 @@ class Octopart:
 					'optimize.hide_hide_offers' : BooleanType, \
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
+		arg_ranges = {}
 		
 		try:
-			Octopart.validate_args(args, required_args, arg_types)
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
 			raise OctopartException(self.parts_get_multi.__name__, args, e.error_number)
 		
