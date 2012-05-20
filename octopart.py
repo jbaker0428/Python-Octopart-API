@@ -142,4 +142,34 @@ class Octopart:
 			raise OctopartException(self.categories_search.__name__, args, 3)
 		
 		return self.__get(method, args)
+	
+	def parts_get(self, args):
+		''' Fetch a part object by its id. '''
+		method = 'parts/get'
+		required_args = frozenset('uid',)
+		arg_types = {'id': StringType, \
+					'optimize.hide_datasheets' : BooleanType, \
+					'optimize.hide_descriptions' : BooleanType, \
+					'optimize.hide_images' : BooleanType, \
+					'optimize.hide_hide_offers' : BooleanType, \
+					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
+					'optimize.hide_specs' : BooleanType}
+		valid_args = frozenset(arg_types.keys())
+		args_set = set(args.keys())
+		
+		if required_args.issubset(args_set) is False:
+			raise OctopartException(self.categories_get.__name__, args, 0)
+		if args_set.issuperset(valid_args):
+			raise OctopartException(self.categories_get.__name__, args, 1)
+		for key in args_set:
+			if arg_types[key] is StringType:
+				if isinstance(args[key], basestring) is False:
+					raise OctopartException(self.categories_get.__name__, args, 2)
+			else:
+				if type(args[key]) is not arg_types[key]:
+					raise OctopartException(self.categories_get.__name__, args, 2)
+		if len(args_set) != len(args.keys()):
+			raise OctopartException(self.categories_get.__name__, args, 3)
+		
+		return self.__get(method, args)
 
