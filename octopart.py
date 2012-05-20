@@ -185,4 +185,39 @@ class Octopart:
 			raise OctopartException(self.parts_get_multi.__name__, args, e.error_number)
 		
 		return self.__get(method, args)
+	
+	def parts_search(self, args):
+		''' Execute a search over all part objects. '''
+		method = 'parts/search'
+		required_args = frozenset()
+		arg_types = {'q': StringType, \
+					'start' : IntType, \
+					'limit' : IntType, \
+					'filters' : DictType, \
+					'rangedfilters' : DictType, \
+					'sortby' : DictType, \
+					'drilldown.include' : BooleanType, \
+					'drilldown.fieldname' : StringType, \
+					'drilldown.facets.prefix' : StringType, \
+					'drilldown.facets.start' : IntType, \
+					'drilldown.facets.limit' : IntType, \
+					'drilldown.facets.sortby' : StringType, \
+					'drilldown.facets.include_hits' : BooleanType, \
+					'optimize.hide_datasheets' : BooleanType, \
+					'optimize.hide_descriptions' : BooleanType, \
+					'optimize.hide_images' : BooleanType, \
+					'optimize.hide_hide_offers' : BooleanType, \
+					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
+					'optimize.hide_specs' : BooleanType}
+		arg_ranges = {'start' : range(1000), \
+					'limit' : range(100), \
+					'drilldown.facets.start' : range(1000), \
+					'drilldown.facets.limit' : range(100)}
+		
+		try:
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
+		except OctopartException as e:
+			raise OctopartException(self.parts_search.__name__, args, e.error_number)
+		
+		return self.__get(method, args)
 
