@@ -182,7 +182,7 @@ class Octopart:
 		if self.pretty_print is True:
 			args['pretty_print'] = self.pretty_print
 		if len(args) > 0:
-			first_arg = True
+			arg_strings = []
 			for arg, val in args.items():
 				if type(val) is BooleanType:
 					v = int(val)
@@ -190,11 +190,10 @@ class Octopart:
 					v = json.dumps(val, separators=(',',':'))
 				else:
 					v = val
-				if first_arg is True:
-					first_arg = False
-					req_url = req_url + '?' + arg + '=' + v
-				else:
-					req_url = req_url + '&' + arg + '=' + v
+				arg_strings.append(arg + '=' + v)
+
+
+			req_url = req_url + '?' + '&'.join(arg_strings)
 		
 		response = urllib2.urlopen(req_url).read() 
 		json_obj = json.loads(response)
