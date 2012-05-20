@@ -348,7 +348,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_get_multi.__name__, args, e.error_number)
+			raise OctopartException(self.parts_suggest.__name__, args, e.error_number)
 		
 		json_obj = self.__get(method, args)
 		parts = []
@@ -367,6 +367,41 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_get_multi.__name__, args, e.error_number)
+			raise OctopartException(self.parts_match.__name__, args, e.error_number)
 		
 		return self.__get(method, args)
+	
+	def partattributes_get(self, args):
+		''' Fetch a partattribute object by its fieldname. 
+		@return: An OctopartPartAttribute object. '''
+		method = 'partattributes/get'
+		required_args = frozenset('fieldname',)
+		arg_types = {'fieldname': StringType}
+		arg_ranges = {}
+		
+		try:
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
+		except OctopartException as e:
+			raise OctopartException(self.partattributes_get.__name__, args, e.error_number)
+		
+		json_obj = self.__get(method, args)
+		return OctopartPartAttribute.new_from_dict(json_obj)
+	
+	def partattributes_get_multi(self, args):
+		''' Fetch multiple partattributes objects by their fieldnames. 
+		@return: A list of OctopartPartAttribute objects. '''
+		method = 'partattributes/get_multi'
+		required_args = frozenset('ids',)
+		arg_types = {'ids': ListType}
+		arg_ranges = {}
+		
+		try:
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
+		except OctopartException as e:
+			raise OctopartException(self.partattributes_get_multi.__name__, args, e.error_number)
+		
+		json_obj = self.__get(method, args)
+		attributes = []
+		for attribute in json_obj:
+			attributes.append(OctopartPartAttribute.new_from_dict(attribute))
+		return attributes
