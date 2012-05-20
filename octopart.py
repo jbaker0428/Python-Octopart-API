@@ -2,6 +2,17 @@ import urllib2
 import json
 import types
 
+class OctopartException(Exception):
+	errors = {0: 'Required argument missing from method call.'}
+	def __init__(self, source, args, error_number):
+		self.source = source
+		self.arguments = args
+		self.error = error_number
+		
+	def __str__(self):
+		str = errors[self.error] + ' Source: ' + self.source + ' Passed arguments: ' + self.arguments
+		return repr(str)
+
 class Octopart:
 	''' A simple client frontend to tho Octopart public REST API. '''
 	api_url = 'http://octopart.com/api/v2/'
