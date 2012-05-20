@@ -319,10 +319,10 @@ class Octopart:
 					'optimize.hide_hide_offers' : BooleanType, \
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
-		arg_ranges = {'start' : range(1000), \
-					'limit' : range(100), \
-					'drilldown.facets.start' : range(1000), \
-					'drilldown.facets.limit' : range(100)}
+		arg_ranges = {'start' : range(1001), \
+					'limit' : range(1, 101), \
+					'drilldown.facets.start' : range(1001), \
+					'drilldown.facets.limit' : range(101)}
 		
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
@@ -335,4 +335,23 @@ class Octopart:
 			new_part = OctopartPart.new_from_dict(result['item'])
 			parts.append([new_part, result['highlight']])
 		return parts
-
+	
+	def parts_suggest(self, args):
+		''' Suggest a part search query string. 
+		Optimized for speed (useful for auto-complete features).
+		@return: A list of OctopartPart objects. '''
+		method = 'parts/suggest'
+		required_args = frozenset('q',)
+		arg_types = {'q': StringType, 'limit' : IntType}
+		arg_ranges = {'q': (2, float("inf")), 'limit' : range(1, 11)}
+		
+		try:
+			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
+		except OctopartException as e:
+			raise OctopartException(self.parts_get_multi.__name__, args, e.error_number)
+		
+		json_obj = self.__get(method, args)
+		parts = []
+		for part in json_obj['results']:
+			parts.append(OctopartPart.new_from_dict(part))
+		return parts
