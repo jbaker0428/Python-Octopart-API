@@ -34,13 +34,20 @@ class OctopartException(Exception):
 			  4: 'Numeric argument value out of valid range.', \
 			  5: 'String argument outside of allowed length.', \
 			  6: 'Value of (start+limit) in a bom/match line argument exceeds 100.'}
-	def __init__(self, source, args, error_number):
+	def __init__(self, source, args, required_args, arg_types, arg_ranges, error_number):
 		self.source = source
 		self.arguments = args
+		self.required_args = required_args
+		self.arg_types = arg_types
+		self.arg_ranges = arg_ranges
 		self.error = error_number
 		
 	def __str__(self):
-		string = OctopartException.errors[self.error] + ' Source: ' + self.source + ' Passed arguments: \n' + str(self.arguments)
+		args = '\nPassed arguments: ' + str(self.arguments)
+		rargs = '\nRequired arguments: ' + str(self.required_args)
+		argt = '\nArgument types: ' + str(self.arg_types)
+		argr = '\nArgument ranges: ' + str(self.arg_ranges)
+		string = OctopartException.errors[self.error] + ' Source: ' + self.source + args + rargs + argt + argr
 		return string
 
 class OctopartBrand:
@@ -143,24 +150,24 @@ class Octopart:
 		args_set = set(args.keys())
 		
 		if required_args.issubset(args_set) is False:
-			raise OctopartException(Octopart.validate_args.__name__, args, 0)
+			raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 0)
 		if args_set.issuperset(valid_args):
-			raise OctopartException(Octopart.validate_args.__name__, args, 1)
+			raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 1)
 		for key in args_set:
 			if arg_types[key] is StringType:
 				if isinstance(args[key], basestring) is False:
-					raise OctopartException(Octopart.validate_args.__name__, args, 2)
+					raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 2)
 			else:
 				if type(args[key]) is not arg_types[key]:
-					raise OctopartException(Octopart.validate_args.__name__, args, 2)
+					raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 2)
 			if key in arg_ranges.keys():
 				if arg_types[key] is StringType:
 					if len(args[key]) < arg_ranges[key][0] or len(args[key]) > arg_ranges[key][1]:
-						raise OctopartException(Octopart.validate_args.__name__, args, 5)
+						raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 5)
 				elif args[key] not in arg_ranges[key]:
-					raise OctopartException(Octopart.validate_args.__name__, args, 4)
+					raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 4)
 		if len(args_set) != len(args.keys()):
-			raise OctopartException(Octopart.validate_args.__name__, args, 3)
+			raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 3)
 	
 	def __init__(self, apikey=None, callback=None, pretty_print=False):
 		self.apikey = apikey
@@ -210,7 +217,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.categories_get.__name__, args, e.error)
+			raise OctopartException(self.categories_get.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		json_obj = self.__get(method, args)
 		return OctopartCategory.new_from_dict(json_obj)
@@ -226,7 +233,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.categories_get_muti.__name__, args, e.error)
+			raise OctopartException(self.categories_get_muti.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		json_obj = self.__get(method, args)
 		categories = []
@@ -245,7 +252,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.categories_search.__name__, args, e.error)
+			raise OctopartException(self.categories_search.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		json_obj = self.__get(method, args)
 		categories = []
@@ -271,7 +278,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_get.__name__, args, e.error)
+			raise OctopartException(self.parts_get.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		json_obj = self.__get(method, args)
 		return OctopartPart.new_from_dict(json_obj)
@@ -293,7 +300,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_get_multi.__name__, args, e.error)
+			raise OctopartException(self.parts_get_multi.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		json_obj = self.__get(method, args)
 		parts = []
@@ -333,7 +340,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_search.__name__, args, e.error)
+			raise OctopartException(self.parts_search.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		json_obj = self.__get(method, args)
 		parts = []
@@ -354,7 +361,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_suggest.__name__, args, e.error)
+			raise OctopartException(self.parts_suggest.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		json_obj = self.__get(method, args)
 		parts = []
@@ -373,7 +380,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_match.__name__, args, e.error)
+			raise OctopartException(self.parts_match.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		return self.__get(method, args)
 	
@@ -388,7 +395,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.partattributes_get.__name__, args, e.error)
+			raise OctopartException(self.partattributes_get.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		json_obj = self.__get(method, args)
 		return OctopartPartAttribute.new_from_dict(json_obj)
@@ -404,7 +411,7 @@ class Octopart:
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.partattributes_get_multi.__name__, args, e.error)
+			raise OctopartException(self.partattributes_get_multi.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		json_obj = self.__get(method, args)
 		attributes = []
@@ -444,16 +451,16 @@ class Octopart:
 			try:
 				Octopart.validate_args(line, lines_required_args, lines_arg_types, lines_arg_ranges)
 			except OctopartException as e:
-				raise OctopartException(self.bom_match.__name__, line, e.error)
+				raise OctopartException(self.bom_match.__name__, line, lines_required_args, lines_arg_types, lines_arg_ranges, e.error)
 			# Method-specific check not covered by validate_args:
 			if (line['start'] + line['match']) > 100:
-				raise OctopartException(self.bom_match.__name__, line, 6)
+				raise OctopartException(self.bom_match.__name__, line, lines_required_args, lines_arg_types, lines_arg_ranges, 6)
 		
 		# Now check the primary args dict as normal
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.bom_match.__name__, args, e.error)
+			raise OctopartException(self.bom_match.__name__, args, required_args, arg_types, arg_ranges, e.error)
 		
 		
 		json_obj = self.__get(method, args)
