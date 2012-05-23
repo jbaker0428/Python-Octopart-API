@@ -83,8 +83,7 @@ class OctopartCategory:
 		self.num_parts = num_parts
 
 class OctopartPart:
-	@staticmethod
-	def new_from_dict(part_dict):
+	def __init__(self, part_dict):
 		# Convert everything to class instances
 		part_dict['manufacturer'] = OctopartBrand.new_from_dict(part_dict['manufacturer'])
 		for offer in part_dict['offers']:
@@ -92,33 +91,23 @@ class OctopartPart:
 		for spec in part_dict['specs']:
 			spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
 		
-		new = OctopartPart(part_dict['uid'], part_dict['mpn'], part_dict['manufacturer'], \
-						part_dict['detail_url'], part_dict['avg_price'], part_dict['avg_avail'], \
-						part_dict['market_status'], part_dict['num_suppliers'], \
-						part_dict['num_authsupplier'], part_dict['short_description'], \
-						part_dict['category_ids'], part_dict['images'], part_dict['datasheets'], part_dict['descriptions'], part_dict['hyperlinks'], part_dict['offers'], part_dict['specs'])
-		return new
-	
-	def __init__(self, uid, mpn, manufacturer, detail_url, avg_price, avg_avail, \
-				market_status, num_suppliers, num_authsuppliers, short_description, \
-				category_ids, images, datasheets, descriptions, hyperlinks, offers, specs):
-		self.uid = uid
-		self.mpn = mpn
-		self.manufacturer = manufacturer
-		self.detail_url = detail_url
-		self.avg_price = avg_price
-		self.avg_avail = avg_avail
-		self.market_status = market_status
-		self.num_suppliers = num_suppliers
-		self.num_authsuppliers = num_authsuppliers
-		self.short_description = short_description
-		self.category_ids = category_ids
-		self.images = images
-		self.datasheets = datasheets
-		self.descriptions = descriptions
-		self.hyperlinks = hyperlinks
-		self.offers = offers
-		self.specs = specs
+		self.uid = part_dict['uid']
+		self.mpn = part_dict['mpn']
+		self.manufacturer = part_dict['manufacturer']
+		self.detail_url = part_dict['detail_url']
+		self.avg_price = part_dict['avg_price']
+		self.avg_avail = part_dict['avg_avail']
+		self.market_status = part_dict['market_status']
+		self.num_suppliers = part_dict['num_suppliers']
+		self.num_authsuppliers = part_dict['num_authsupplier']
+		self.short_description = part_dict['short_description']
+		self.category_ids = part_dict['category_ids']
+		self.images = part_dict['images']
+		self.datasheets = part_dict['datasheets']
+		self.descriptions = part_dict['descriptions']
+		self.hyperlinks = part_dict['hyperlinks']
+		self.offers = part_dict['offers']
+		self.specs = part_dict['specs']
 
 class OctopartPartAttribute:
 	TYPE_TEXT = 'text'
@@ -316,7 +305,7 @@ class Octopart:
 				raise OctopartException(self.parts_get.__name__, args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		return OctopartPart.new_from_dict(json_obj)
+		return OctopartPart(json_obj)
 	
 	def parts_get_multi(self, args):
 		''' Fetch multiple part objects by their ids. 
@@ -348,7 +337,7 @@ class Octopart:
 				raise e
 		parts = []
 		for part in json_obj:
-			parts.append(OctopartPart.new_from_dict(part))
+			parts.append(OctopartPart(part))
 		return parts
 	
 	def parts_search(self, args):
@@ -396,7 +385,7 @@ class Octopart:
 				raise e
 		parts = []
 		for result in json_obj['results']:
-			new_part = OctopartPart.new_from_dict(result['item'])
+			new_part = OctopartPart(result['item'])
 			parts.append([new_part, result['highlight']])
 		return parts
 	
@@ -425,7 +414,7 @@ class Octopart:
 				raise e
 		parts = []
 		for part in json_obj['results']:
-			parts.append(OctopartPart.new_from_dict(part))
+			parts.append(OctopartPart(part))
 		return parts
 	
 	def parts_match(self, args):
@@ -559,7 +548,7 @@ class Octopart:
 		for result in json_obj['results']:
 			items = []
 			for item in result['items']:
-				items.append(OctopartPart.new_from_dict(part))
+				items.append(OctopartPart(part))
 			results.append({'items' : items, 'reference' : result['reference'], 'status' : result['status']})
 		
 		return results
