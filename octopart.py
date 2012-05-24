@@ -365,7 +365,7 @@ class Octopart:
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
 		arg_ranges = {'start' : range(1001), \
-					'limit' : range(1, 101), \
+					'limit' : range(0, 101), \
 					'drilldown.facets.start' : range(1001), \
 					'drilldown.facets.limit' : range(101)}
 		
@@ -396,7 +396,7 @@ class Octopart:
 		method = 'parts/suggest'
 		required_args = frozenset(('q',))
 		arg_types = {'q': StringType, 'limit' : IntType}
-		arg_ranges = {'q': (2, float("inf")), 'limit' : range(1, 11)}
+		arg_ranges = {'q': (2, float("inf")), 'limit' : range(0, 11)}
 		
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
