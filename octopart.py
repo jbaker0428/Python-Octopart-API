@@ -99,7 +99,7 @@ class OctopartPart:
 		self.avg_avail = part_dict['avg_avail']
 		self.market_status = part_dict['market_status']
 		self.num_suppliers = part_dict['num_suppliers']
-		self.num_authsuppliers = part_dict['num_authsupplier']
+		self.num_authsuppliers = part_dict['num_authsuppliers']
 		self.short_description = part_dict['short_description']
 		self.category_ids = part_dict['category_ids']
 		self.images = part_dict['images']
