@@ -84,12 +84,17 @@ class OctopartCategory:
 
 class OctopartPart:
 	def __init__(self, part_dict):
-		# Convert everything to class instances
-		part_dict['manufacturer'] = OctopartBrand.new_from_dict(part_dict['manufacturer'])
+		# If class data is in dictionary format, convert everything to class instances 
+		# Otherwise, assume it is already in class format and do nothing
+		
+		if type(part_dict['manufacturer']) is DictType:
+			part_dict['manufacturer'] = OctopartBrand.new_from_dict(part_dict['manufacturer'])
 		for offer in part_dict['offers']:
-			offer['supplier'] = OctopartBrand.new_from_dict(offer['supplier'])
+			if type(offer['supplier']) is DictType:
+				offer['supplier'] = OctopartBrand.new_from_dict(offer['supplier'])
 		for spec in part_dict['specs']:
-			spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
+			if type(spec['attribute']) is DictType:
+				spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
 		
 		self.uid = part_dict['uid']
 		self.mpn = part_dict['mpn']
