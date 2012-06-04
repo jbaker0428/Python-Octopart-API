@@ -25,6 +25,8 @@ __contributors__ = []
 import urllib2
 import json
 from types import *
+import dateutil.parser
+import datetime
 
 class OctopartException(Exception):
 	errors = {0: 'Required argument missing from method call.', \
@@ -92,6 +94,10 @@ class OctopartPart:
 		for offer in part_dict['offers']:
 			if type(offer['supplier']) is DictType:
 				offer['supplier'] = OctopartBrand.new_from_dict(offer['supplier'])
+			# Convert ISO 8601 datetime strings to datetime objects
+			if 'update_ts' in offer:
+				offer['update_ts'] = dateutil.parser.parse(offer['update_ts']) 
+			
 		for spec in part_dict['specs']:
 			if type(spec['attribute']) is DictType:
 				spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
