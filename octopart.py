@@ -353,7 +353,11 @@ class Octopart:
 	
 	def parts_search(self, args):
 		''' Execute a search over all result objects. 
-		@return: A list of [OctopartPart, highlight_text] pairs. '''
+		@return: A tuple pair containing:
+		-A list of [OctopartPart, highlight_text] pairs. 
+		-A list of drilldown result dictionaries. 
+		If {drilldown.include : True} is not passed in the args dictionary, 
+		the drilldown list will be empty. '''
 		method = 'parts/search'
 		required_args = frozenset()
 		arg_types = {'q': StringType, \
@@ -395,10 +399,15 @@ class Octopart:
 			else:
 				raise e
 		parts = []
+		drilldown = []
 		for result in json_obj['results']:
 			new_part = OctopartPart(result['item'])
 			parts.append([new_part, result['highlight']])
-		return parts
+		if 'drilldown.include' in args and args['drilldown.include'] is True:
+			for drill in json_obj['drilldown']:
+				drill['attribute'] = OctopartPartAttribute.new_from_dict(drill['attribute'])
+				drilldown.append(drill)
+		return (parts, drilldown)
 	
 	def parts_suggest(self, args):
 		''' Suggest a part search query string. 
