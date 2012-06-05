@@ -55,7 +55,7 @@ class OctopartException(Exception):
 		string = OctopartException.errors[self.error] + ' Source: ' + self.source + args + rargs + argt + argr
 		return string
 
-class OctopartBrand:
+class OctopartBrand(object):
 	@staticmethod
 	def new_from_dict(brand_dict):
 		new = OctopartBrand(brand_dict['id'], brand_dict['displayname'], brand_dict['homepage'])
@@ -66,7 +66,7 @@ class OctopartBrand:
 		self.displayname = dispname
 		self.homepage_url = homepage
 
-class OctopartCategory:
+class OctopartCategory(object):
 	@staticmethod
 	def new_from_dict(category_dict):
 		new = OctopartCategory(category_dict['id'], category_dict['parent_id'], category_dict['nodename'], \
@@ -84,7 +84,7 @@ class OctopartCategory:
 		self.ancestors = ancestors	# Sorted list of category objects
 		self.num_parts = num_parts
 
-class OctopartPart:
+class OctopartPart(object):
 	def __init__(self, part_dict):
 		# If class data is in dictionary format, convert everything to class instances 
 		# Otherwise, assume it is already in class format and do nothing
@@ -120,7 +120,7 @@ class OctopartPart:
 		self.offers = part_dict['offers']
 		self.specs = part_dict['specs']
 
-class OctopartPartAttribute:
+class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
 	TYPE_NUMBER = 'number'
 	
@@ -135,7 +135,7 @@ class OctopartPartAttribute:
 		self.type = type
 		self.metadata = metadata
 
-class Octopart:
+class Octopart(object):
 	''' A simple client frontend to tho Octopart public REST API. 
 	For detailed API documentation, refer to http://octopart.com/api/documentation'''
 	api_url = 'http://octopart.com/api/v2/'
