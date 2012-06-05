@@ -29,6 +29,7 @@ import dateutil.parser
 import datetime
 
 class OctopartException(Exception):
+	''' Various errors that can be raised by the Octopart API. '''
 	errors = {0: 'Required argument missing from method call.', \
 			  1: 'Passed an invalid argument for this method.', \
 			  2: 'Malformed argument.', \
@@ -39,8 +40,7 @@ class OctopartException(Exception):
 			  7: 'Unexpected HTTP Error 404', \
 			  8: 'Unexpected HTTP Error 503'}
 	
-	def __init__(self, source, args, required_args, arg_types, arg_ranges, error_number):
-		self.source = source
+	def __init__(self, args, required_args, arg_types, arg_ranges, error_number):
 		self.arguments = args
 		self.required_args = required_args
 		self.arg_types = arg_types
@@ -52,7 +52,7 @@ class OctopartException(Exception):
 		rargs = '\nRequired arguments: ' + str(self.required_args)
 		argt = '\nArgument types: ' + str(self.arg_types)
 		argr = '\nArgument ranges: ' + str(self.arg_ranges)
-		string = OctopartException.errors[self.error] + ' Source: ' + self.source + args + rargs + argt + argr
+		string = OctopartException.errors[self.error] + args + rargs + argt + argr
 		return string
 
 class OctopartBrand(object):
@@ -153,24 +153,24 @@ class Octopart(object):
 		args_set = set(args.keys())
 		
 		if required_args.issubset(args_set) is False:
-			raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 0)
+			raise OctopartException(args, required_args, arg_types, arg_ranges, 0)
 		if args_set.issubset(valid_args) is False:
-			raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 1)
+			raise OctopartException(args, required_args, arg_types, arg_ranges, 1)
 		for key in args_set:
 			if arg_types[key] is StringType:
 				if isinstance(args[key], basestring) is False:
-					raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 2)
+					raise OctopartException(args, required_args, arg_types, arg_ranges, 2)
 			else:
 				if type(args[key]) is not arg_types[key]:
-					raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 2)
+					raise OctopartException(args, required_args, arg_types, arg_ranges, 2)
 			if key in arg_ranges.keys():
 				if arg_types[key] is StringType:
 					if len(args[key]) < arg_ranges[key][0] or len(args[key]) > arg_ranges[key][1]:
-						raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 5)
+						raise OctopartException(args, required_args, arg_types, arg_ranges, 5)
 				elif args[key] not in arg_ranges[key]:
-					raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 4)
+					raise OctopartException(args, required_args, arg_types, arg_ranges, 4)
 		if len(args_set) != len(args.keys()):
-			raise OctopartException(Octopart.validate_args.__name__, args, required_args, arg_types, arg_ranges, 3)
+			raise OctopartException(args, required_args, arg_types, arg_ranges, 3)
 	
 	def __init__(self, apikey=None, callback=None, pretty_print=False):
 		self.apikey = apikey
@@ -220,7 +220,7 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.categories_get.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		try:
 			json_obj = self.__get(method, args)
@@ -228,7 +228,7 @@ class Octopart(object):
 			if e.code == 404:
 				return None
 			elif e.code == 503:
-				raise OctopartException(self.categories_get.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		return OctopartCategory.new_from_dict(json_obj)
@@ -244,15 +244,15 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.categories_get_muti.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
-				raise OctopartException(self.categories_get_multi.__name__, args, required_args, arg_types, arg_ranges, 7)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 7)
 			elif e.code == 503:
-				raise OctopartException(self.categories_get_multi.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		categories = []
@@ -271,15 +271,15 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.categories_search.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
-				raise OctopartException(self.categories_get_search.__name__, args, required_args, arg_types, arg_ranges, 7)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 7)
 			elif e.code == 503:
-				raise OctopartException(self.categories_get_search.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		categories = []
@@ -305,7 +305,7 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_get.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		try:
 			json_obj = self.__get(method, args)
@@ -313,7 +313,7 @@ class Octopart(object):
 			if e.code == 404:
 				return None
 			elif e.code == 503:
-				raise OctopartException(self.parts_get.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		return OctopartPart(json_obj)
@@ -335,15 +335,15 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_get_multi.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
-				raise OctopartException(self.parts_get_multi.__name__, args, required_args, arg_types, arg_ranges, 7)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 7)
 			elif e.code == 503:
-				raise OctopartException(self.parts_get_multi.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		parts = []
@@ -387,15 +387,15 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_search.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
-				raise OctopartException(self.parts_search.__name__, args, required_args, arg_types, arg_ranges, 7)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 7)
 			elif e.code == 503:
-				raise OctopartException(self.parts_search.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		parts = []
@@ -421,15 +421,15 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_suggest.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
-				raise OctopartException(self.parts_suggest.__name__, args, required_args, arg_types, arg_ranges, 7)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 7)
 			elif e.code == 503:
-				raise OctopartException(self.parts_suggest.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		parts = []
@@ -448,14 +448,14 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.parts_match.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
-				raise OctopartException(self.parts_match.__name__, args, required_args, arg_types, arg_ranges, 7)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 7)
 			elif e.code == 503:
-				raise OctopartException(self.parts_match.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		return json_obj
@@ -471,7 +471,7 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.partattributes_get.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		try:
 			json_obj = self.__get(method, args)
@@ -479,7 +479,7 @@ class Octopart(object):
 			if e.code == 404:
 				return None
 			elif e.code == 503:
-				raise OctopartException(self.partattributes_get.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		return OctopartPartAttribute.new_from_dict(json_obj)
@@ -495,15 +495,15 @@ class Octopart(object):
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.partattributes_get_multi.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
-				raise OctopartException(self.partattributes_get_multi.__name__, args, required_args, arg_types, arg_ranges, 7)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 7)
 			elif e.code == 503:
-				raise OctopartException(self.partattributes_get_multi.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		attributes = []
@@ -543,25 +543,25 @@ class Octopart(object):
 			try:
 				Octopart.validate_args(line, lines_required_args, lines_arg_types, lines_arg_ranges)
 			except OctopartException as e:
-				raise OctopartException(self.bom_match.__name__, line, lines_required_args, lines_arg_types, lines_arg_ranges, e.error)
+				raise e
 			# Method-specific check not covered by validate_args:
 			if (line['start'] + line['match']) > 100:
-				raise OctopartException(self.bom_match.__name__, line, lines_required_args, lines_arg_types, lines_arg_ranges, 6)
+				raise OctopartException(lines_required_args, lines_arg_types, lines_arg_ranges, 6)
 		
 		# Now check the primary args dict as normal
 		try:
 			Octopart.validate_args(args, required_args, arg_types, arg_ranges)
 		except OctopartException as e:
-			raise OctopartException(self.bom_match.__name__, args, required_args, arg_types, arg_ranges, e.error)
+			raise e
 		
 		
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
-				raise OctopartException(self.bom_match.__name__, args, required_args, arg_types, arg_ranges, 7)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 7)
 			elif e.code == 503:
-				raise OctopartException(self.bom_match.__name__, args, required_args, arg_types, arg_ranges, 8)
+				raise OctopartException(args, required_args, arg_types, arg_ranges, 8)
 			else:
 				raise e
 		results = []
