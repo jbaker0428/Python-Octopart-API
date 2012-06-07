@@ -1,5 +1,5 @@
 
-''' 
+""" 
 A simple Python client frontend to the Octopart public REST API.
 
 @author: Joe Baker <jbaker@alum.wpi.edu>
@@ -16,7 +16,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-''' 
+"""
 
 __version__ = "0.2"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
@@ -31,7 +31,9 @@ import traceback
 import dateutil.parser
 
 class OctopartException(Exception):
-	''' Various errors that can be raised by the Octopart API. '''
+	
+	"""Various errors that can be raised by the Octopart API."""
+	
 	__slots__ = ["arguments", "arg_types", "arg_ranges", "code"]
 	errors = {0: 'Required argument missing from method call.', \
 			  1: 'Passed an invalid argument for this method.', \
@@ -91,7 +93,6 @@ class OctopartPart(object):
 	def __init__(self, part_dict):
 		# If class data is in dictionary format, convert everything to class instances 
 		# Otherwise, assume it is already in class format and do nothing
-		
 		if type(part_dict['manufacturer']) is DictType:
 			part_dict['manufacturer'] = OctopartBrand.new_from_dict(part_dict['manufacturer'])
 		for offer in part_dict['offers']:
@@ -139,8 +140,12 @@ class OctopartPartAttribute(object):
 		self.metadata = metadata
 
 class Octopart(object):
-	''' A simple client frontend to tho Octopart public REST API. 
-	For detailed API documentation, refer to http://octopart.com/api/documentation'''
+	
+	"""A simple client frontend to tho Octopart public REST API. 
+	
+	For detailed API documentation, refer to http://octopart.com/api/documentation.
+	"""
+	
 	api_url = 'http://octopart.com/api/v2/'
 	__slots__ = ["apikey", "callback", "pretty_print"]
 	
@@ -150,12 +155,15 @@ class Octopart(object):
 		self.pretty_print = pretty_print
 	
 	def __validate_args(args, arg_types, arg_ranges):
-		''' Checks method arguments for syntax errors. 
+		""" Checks method arguments for syntax errors.
+		
 		@param args: Dictionary of argumets to check
-		@param arg_types: Dictionary which contains the correct data type for each argument
+		@param arg_types: Dictionary which contains the correct data type for each argument.
 		@param arg_ranges: Dictionary which contains range() calls for any numeric arguments with a limited range.
 		Can also be used to constrain string argument length. For string arguments, contains a (min, max) pair.
-		@raise OctopartException: If any syntax errors are found.'''
+		@raise OctopartException: If any syntax errors are found.
+		"""
+		
 		valid_args = frozenset(arg_types.keys())
 		args_set = set(args.keys())
 		
@@ -182,10 +190,12 @@ class Octopart(object):
 			raise e
 	
 	def __get(self, method, args):
-		''' Makes a GET request with the given method and arguments. 
-		@param method: String containing the method path, such as "parts/search" 
-		@param args: Dictionary of arguments to pass to the API method 
-		@return: JSON response from server'''
+		"""Makes a GET request with the given API method and arguments.
+		
+		@param method: String containing the method path, such as "parts/search".
+		@param args: Dictionary of arguments to pass to the API method.
+		@return: JSON response from server.
+		"""
 		
 		# Construct the request URL
 		req_url = Octopart.api_url + method
@@ -214,12 +224,12 @@ class Octopart(object):
 		return json_obj
 	
 	def __translate_periods(self, args):
-		'''
-		Translates Python-friendly keyword arguments to valid Octopart API arguments. 
+		"""Translates Python-friendly keyword arguments to valid Octopart API arguments.
+		
 		Several Octopart API arguments contain a period in their name.
 		Unfortunately, trying to unpack a keyword argument in a Python function with 
 		a period in the argument name will cause a syntax code: 
-		"keyword can't be an expression"
+		'keyword can't be an expression'
 		
 		Therefore, the Python API methods expect an underscore in place of the
 		periods in the argument names. This method replaces those underscores with
@@ -228,7 +238,7 @@ class Octopart(object):
 		
 		@param args: Unpackable keyword arguments dict from a public API call.
 		@return Translated keyword arguments dict.
-		'''
+		"""
 		
 		translation = {'drilldown_include' : 'drilldown.include', \
 					'drilldown_fieldname' : 'drilldown.fieldname', \
@@ -260,8 +270,11 @@ class Octopart(object):
 		return args
 
 	def categories_get(self, id):
-		''' Fetch a category object by its id. 
-		@return: An OctopartCategory object or None. '''
+		"""Fetch a category object by its id. 
+		
+		@return: An OctopartCategory object or None.
+		"""
+		
 		method = 'categories/get'
 		arg_types = {'id': IntType}
 		arg_ranges = {}
@@ -283,8 +296,11 @@ class Octopart(object):
 		return OctopartCategory.new_from_dict(json_obj)
 	
 	def categories_get_multi(self, ids):
-		''' Fetch multiple category objects by their ids. 
-		@return: A list of OctopartCategory objects. '''
+		"""Fetch multiple category objects by their ids. 
+		
+		@return: A list of OctopartCategory objects.
+		"""
+		
 		method = 'categories/get_multi'
 		arg_types = {'ids': ListType}
 		arg_ranges = {}
@@ -309,8 +325,11 @@ class Octopart(object):
 		return categories
 	
 	def categories_search(self, **args):
-		''' Execute search over all result objects. 
-		@return: A list of [OctopartCategory, highlight_text] pairs. '''
+		"""Execute search over all result objects. 
+		
+		@return: A list of [OctopartCategory, highlight_text] pairs.
+		"""
+		
 		method = 'categories/search'
 		arg_types = {'q': StringType, 'start' : IntType, 'limit' : IntType, 'ancestor_id' : IntType}
 		arg_ranges = {}
@@ -335,8 +354,11 @@ class Octopart(object):
 		return categories
 	
 	def parts_get(self, uid, **kwargs):
-		''' Fetch a part object by its id. 
-		@return: An OctopartPart object. '''
+		"""Fetch a part object by its id.
+		
+		@return: An OctopartPart object.
+		"""
+		
 		method = 'parts/get'
 		arg_types = {'uid': IntType, \
 					'optimize.hide_datasheets' : BooleanType, \
@@ -365,8 +387,11 @@ class Octopart(object):
 		return OctopartPart(json_obj)
 	
 	def parts_get_multi(self, uids, **kwargs):
-		''' Fetch multiple part objects by their ids. 
-		@return: A list of OctopartPart objects. '''
+		"""Fetch multiple part objects by their ids.
+		
+		@return: A list of OctopartPart objects.
+		"""
+		
 		method = 'parts/get_multi'
 		arg_types = {'uids': StringType, \
 					'optimize.hide_datasheets' : BooleanType, \
@@ -398,12 +423,15 @@ class Octopart(object):
 		return parts
 	
 	def parts_search(self, **kwargs):
-		''' Execute a search over all result objects. 
+		"""Execute a search over all result objects.
+		
 		@return: A tuple pair containing:
-		-A list of [OctopartPart, highlight_text] pairs. 
-		-A list of drilldown result dictionaries. 
+			-A list of [OctopartPart, highlight_text] pairs. 
+			-A list of drilldown result dictionaries. 
 		If {drilldown.include : True} is not passed in the args dictionary, 
-		the drilldown list will be empty. '''
+		the drilldown list will be empty.
+		"""
+		
 		method = 'parts/search'
 		arg_types = {'q': StringType, \
 					'start' : IntType, \
@@ -456,9 +484,12 @@ class Octopart(object):
 		return (parts, drilldown)
 	
 	def parts_suggest(self, q, **args):
-		''' Suggest a part search query string. 
+		"""Suggest a part search query string.
+		
 		Optimized for speed (useful for auto-complete features).
-		@return: A list of OctopartPart objects. '''
+		@return: A list of OctopartPart objects.
+		"""
+		
 		method = 'parts/suggest'
 		arg_types = {'q': StringType, 'limit' : IntType}
 		arg_ranges = {'q': (2, float("inf")), 'limit' : range(0, 11)}
@@ -484,8 +515,11 @@ class Octopart(object):
 		return parts
 	
 	def parts_match(self, manufacturer_name, mpn):
-		''' Match (manufacturer name, mpn) to part uid. 
-		@return: a list of (part uid, manufacturer displayname, mpn) tuples. '''
+		"""Match (manufacturer name, mpn) to part uid. 
+		
+		@return: a list of (part uid, manufacturer displayname, mpn) tuples.
+		"""
+		
 		method = 'parts/match'
 		arg_types = {'manufacturer_name': StringType, 'mpn' : StringType}
 		arg_ranges = {}
@@ -507,8 +541,11 @@ class Octopart(object):
 		return json_obj
 	
 	def partattributes_get(self, fieldname):
-		''' Fetch a partattribute object by its fieldname. 
-		@return: An OctopartPartAttribute object. '''
+		"""Fetch a partattribute object by its fieldname.
+		
+		@return: An OctopartPartAttribute object.
+		"""
+		
 		method = 'partattributes/get'
 		arg_types = {'fieldname': StringType}
 		arg_ranges = {}
@@ -530,8 +567,11 @@ class Octopart(object):
 		return OctopartPartAttribute.new_from_dict(json_obj)
 	
 	def partattributes_get_multi(self, fieldnames):
-		''' Fetch multiple partattributes objects by their fieldnames. 
-		@return: A list of OctopartPartAttribute objects. '''
+		"""Fetch multiple partattributes objects by their fieldnames.
+		
+		@return: A list of OctopartPartAttribute objects.
+		"""
+		
 		method = 'partattributes/get_multi'
 		arg_types = {'fieldnames': ListType}
 		arg_ranges = {}
@@ -556,9 +596,14 @@ class Octopart(object):
 		return attributes
 	
 	def bom_match(self, lines, **kwargs):
-		''' Match a list of part numbers to Octopart part objects. 
-		@return: A list of 3-item dicts containing a list of OctopartParts, 
-		a reference string, and a status string. '''
+		"""Match a list of part numbers to Octopart part objects.
+		 
+		@return: A list of 3-item dicts containing:
+			-A list of OctopartParts.
+			-A reference string.
+			-A status string.
+		"""
+		
 		method = 'bom/match'
 		arg_types = {'lines': ListType, \
 					'optimize.return_stubs' : BooleanType, \
