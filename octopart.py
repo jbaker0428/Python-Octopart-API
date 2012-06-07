@@ -32,6 +32,7 @@ import dateutil.parser
 
 class OctopartException(Exception):
 	''' Various errors that can be raised by the Octopart API. '''
+	__slots__ = ["arguments", "arg_types", "arg_ranges", "code"]
 	errors = {0: 'Required argument missing from method call.', \
 			  1: 'Passed an invalid argument for this method.', \
 			  2: 'Malformed argument.', \
@@ -56,9 +57,11 @@ class OctopartException(Exception):
 		return string
 
 class OctopartBrand(object):
+	__slots__ = ["id", "displayname", "homepage_url"]
+	
 	@classmethod
 	def new_from_dict(cls, brand_dict):
-		new = cls(brand_dict['id'], brand_dict['displayname'], brand_dict['homepage'])
+		new = cls(brand_dict['id'], brand_dict['displayname'], brand_dict['homepage_url'])
 		return new
 	
 	def __init__(self, id, dispname, homepage):
@@ -139,6 +142,7 @@ class Octopart(object):
 	''' A simple client frontend to tho Octopart public REST API. 
 	For detailed API documentation, refer to http://octopart.com/api/documentation'''
 	api_url = 'http://octopart.com/api/v2/'
+	__slots__ = ["apikey", "callback", "pretty_print"]
 	
 	def __init__(self, apikey=None, callback=None, pretty_print=False):
 		self.apikey = apikey
