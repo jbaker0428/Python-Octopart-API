@@ -25,9 +25,10 @@ __contributors__ = []
 import urllib2
 import json
 from types import *
-import dateutil.parser
 import datetime
 import traceback
+
+import dateutil.parser
 
 class OctopartException(Exception):
 	''' Various errors that can be raised by the Octopart API. '''
