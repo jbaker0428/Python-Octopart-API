@@ -55,9 +55,9 @@ class OctopartException(Exception):
 		return string
 
 class OctopartBrand(object):
-	@staticmethod
-	def new_from_dict(brand_dict):
-		new = OctopartBrand(brand_dict['id'], brand_dict['displayname'], brand_dict['homepage'])
+	@classmethod
+	def new_from_dict(cls, brand_dict):
+		new = cls(brand_dict['id'], brand_dict['displayname'], brand_dict['homepage'])
 		return new
 	
 	def __init__(self, id, dispname, homepage):
@@ -66,9 +66,9 @@ class OctopartBrand(object):
 		self.homepage_url = homepage
 
 class OctopartCategory(object):
-	@staticmethod
-	def new_from_dict(category_dict):
-		new = OctopartCategory(category_dict['id'], category_dict['parent_id'], category_dict['nodename'], \
+	@classmethod
+	def new_from_dict(cls, category_dict):
+		new = cls(category_dict['id'], category_dict['parent_id'], category_dict['nodename'], \
 							category_dict['images'], category_dict['children_ids'], category_dict['ancestor_ids'], \
 							category_dict['ancestors'], category_dict['num_parts'])
 		return new
@@ -123,9 +123,9 @@ class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
 	TYPE_NUMBER = 'number'
 	
-	@staticmethod
-	def new_from_dict(attribute_dict):
-		new = OctopartPartAttribute(attribute_dict['fieldname'], attribute_dict['displayname'], attribute_dict['type'], attribute_dict['metadata'])
+	@classmethod
+	def new_from_dict(cls, attribute_dict):
+		new = cls(attribute_dict['fieldname'], attribute_dict['displayname'], attribute_dict['type'], attribute_dict['metadata'])
 		return new
 	
 	def __init__(self, fieldname, displayname, type, metadata):
