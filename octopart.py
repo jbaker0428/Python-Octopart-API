@@ -28,8 +28,6 @@ from types import *
 import datetime
 import traceback
 
-import dateutil.parser
-
 class OctopartException(Exception):
 	
 	"""Various errors that can be raised by the Octopart API."""
@@ -100,7 +98,10 @@ class OctopartPart(object):
 				offer['supplier'] = OctopartBrand.new_from_dict(offer['supplier'])
 			# Convert ISO 8601 datetime strings to datetime objects
 			if 'update_ts' in offer:
-				offer['update_ts'] = dateutil.parser.parse(offer['update_ts']) 
+				# Strip 'Z' UTC notation that can't be parsed
+				if offer['update_ts'][-1] == 'Z':
+					offer['update_ts'] = offer['update_ts'][0:-1]
+				offer['update_ts'] = datetime.strptime(offer['update_ts'], '%Y-%m-%dT%H:M:S')
 			
 		for spec in part_dict['specs']:
 			if type(spec['attribute']) is DictType:
