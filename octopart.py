@@ -187,6 +187,9 @@ class Octopart(object):
 			if arg_types[key] is StringType:
 				if isinstance(args[key], basestring) is False:
 					raise OctopartException(args, arg_types, arg_ranges, 2)
+			elif arg_types[key] is TupleType:	# Tuple of types
+				if type(args[key]) not in arg_types[key]:
+					raise OctopartException(args, arg_types, arg_ranges, 2)
 			else:
 				if type(args[key]) is not arg_types[key]:
 					raise OctopartException(args, arg_types, arg_ranges, 2)
@@ -286,7 +289,7 @@ class Octopart(object):
 		"""
 		
 		method = 'categories/get'
-		arg_types = {'id': IntType}
+		arg_types = {'id': (IntType, LongType)}
 		arg_ranges = {}
 		args = {'id' : id}
 		
@@ -367,7 +370,7 @@ class Octopart(object):
 		"""
 		
 		method = 'parts/get'
-		arg_types = {'uid': IntType, \
+		arg_types = {'uid': (IntType, LongType), \
 					'optimize.hide_datasheets' : BooleanType, \
 					'optimize.hide_descriptions' : BooleanType, \
 					'optimize.hide_images' : BooleanType, \
