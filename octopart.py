@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
 __contributors__ = []
 
@@ -284,6 +284,20 @@ class Octopart(object):
 				args[translation[key]] = args.pop(key)
 			
 		return args
+	
+	def categories_get_args(self, id):
+		"""Validate and format arguments passed to categories_get().
+		
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
+		"""
+		
+		arg_types = {'id': (IntType, LongType)}
+		arg_ranges = {}
+		args = {'id' : id}
+		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args
 
 	def categories_get(self, id):
 		"""Fetch a category object by its id. 
@@ -292,11 +306,7 @@ class Octopart(object):
 		"""
 		
 		method = 'categories/get'
-		arg_types = {'id': (IntType, LongType)}
-		arg_ranges = {}
-		args = {'id' : id}
-		
-		self.__validate_args(args, arg_types, arg_ranges)
+		args = self.categories_get_args(id)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -311,6 +321,23 @@ class Octopart(object):
 		else:
 			return None
 	
+	def categories_get_multi_args(self, ids):
+		"""Validate and format arguments passed to categories_get_multi().
+		
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
+		"""
+		
+		arg_types = {'ids': ListType}
+		arg_ranges = {}
+		args = {'ids' : ids}
+		self.__validate_args(args, arg_types, arg_ranges)
+		for id in args['ids']:
+			if type(id) not in (IntType, LongType):
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+		
+		return args
+	
 	def categories_get_multi(self, ids):
 		"""Fetch multiple category objects by their ids. 
 		
@@ -318,14 +345,7 @@ class Octopart(object):
 		"""
 		
 		method = 'categories/get_multi'
-		arg_types = {'ids': ListType}
-		arg_ranges = {}
-		args = {'ids' : ids}
-		
-		self.__validate_args(args, arg_types, arg_ranges)
-		for id in args['ids']:
-			if type(id) not in (IntType, LongType):
-				raise OctopartException(args, arg_types, arg_ranges, 2)
+		args = self.categories_get_multi_args(ids)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -340,19 +360,28 @@ class Octopart(object):
 			for category in json_obj:
 				categories.append(OctopartCategory.new_from_dict(category))
 		return categories
-		
 	
-	def categories_search(self, **args):
+	def categories_search_args(self, args):
+		"""Validate and format arguments passed to categories_search().
+		
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
+		"""
+		
+		arg_types = {'q': StringType, 'start' : IntType, 'limit' : IntType, 'ancestor_id' : IntType}
+		arg_ranges = {}
+		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args	
+	
+	def categories_search(self, **kwargs):
 		"""Execute search over all result objects. 
 		
 		@return: A list of [OctopartCategory, highlight_text] pairs.
 		"""
 		
 		method = 'categories/search'
-		arg_types = {'q': StringType, 'start' : IntType, 'limit' : IntType, 'ancestor_id' : IntType}
-		arg_ranges = {}
-		
-		self.__validate_args(args, arg_types, arg_ranges)
+		args = self.categories_search_args(kwargs)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -369,13 +398,13 @@ class Octopart(object):
 				categories.append([new_category, result['highlight']])
 		return categories
 	
-	def parts_get(self, uid, **kwargs):
-		"""Fetch a part object by its id.
+	def parts_get_args(self, uid, args):
+		"""Validate and format arguments passed to parts_get().
 		
-		@return: An OctopartPart object.
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
-		method = 'parts/get'
 		arg_types = {'uid': (IntType, LongType), \
 					'optimize.hide_datasheets' : BooleanType, \
 					'optimize.hide_descriptions' : BooleanType, \
@@ -384,10 +413,20 @@ class Octopart(object):
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
 		arg_ranges = {}
-		args = self.__translate_periods(kwargs)
+		args = self.__translate_periods(args)
 		args['uid'] = uid
-		
 		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args
+	
+	def parts_get(self, uid, **kwargs):
+		"""Fetch a part object by its id.
+		
+		@return: An OctopartPart object.
+		"""
+		
+		method = 'parts/get'
+		args = self.parts_get_args(uid, kwargs)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -402,13 +441,13 @@ class Octopart(object):
 		else:
 			return None
 	
-	def parts_get_multi(self, uids, **kwargs):
-		"""Fetch multiple part objects by their ids.
+	def parts_get_multi_args(self, uids, args):
+		"""Validate and format arguments passed to parts_get_multi().
 		
-		@return: A list of OctopartPart objects.
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
-		method = 'parts/get_multi'
 		arg_types = {'uids': ListType, \
 					'optimize.hide_datasheets' : BooleanType, \
 					'optimize.hide_descriptions' : BooleanType, \
@@ -417,13 +456,23 @@ class Octopart(object):
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
 		arg_ranges = {'uids': (0, 100)}
-		args = self.__translate_periods(kwargs)
+		args = self.__translate_periods(args)
 		args['uids'] = uids
-		
 		for id in args['uids']:
 			if type(id) not in (IntType, LongType):
 				raise OctopartException(args, arg_types, arg_ranges, 2)
 		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args
+	
+	def parts_get_multi(self, uids, **kwargs):
+		"""Fetch multiple part objects by their ids.
+		
+		@return: A list of OctopartPart objects.
+		"""
+		
+		method = 'parts/get_multi'
+		args = self.parts_get_multi_args(uids, kwargs)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -439,17 +488,13 @@ class Octopart(object):
 				parts.append(OctopartPart.new_from_dict(part))
 		return parts
 	
-	def parts_search(self, **kwargs):
-		"""Execute a search over all result objects.
+	def parts_search_args(self, args):
+		"""Validate and format arguments passed to parts_search().
 		
-		@return: A tuple pair containing:
-			-A list of [OctopartPart, highlight_text] pairs. 
-			-A list of drilldown result dictionaries. 
-		If {drilldown.include : True} is not passed in the args dictionary, 
-		the drilldown list will be empty.
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
-		method = 'parts/search'
 		arg_types = {'q': StringType, \
 					'start' : IntType, \
 					'limit' : IntType, \
@@ -474,7 +519,7 @@ class Octopart(object):
 					'drilldown.facets.start' : (0, 1000), \
 					'drilldown.facets.limit' : (0, 100)}
 		
-		args = self.__translate_periods(kwargs)
+		args = self.__translate_periods(args)
 		# Method-specific checks not covered by validate_args:
 		for filter in args.get('filters', []):
 			if len(filter) != 2:
@@ -510,6 +555,22 @@ class Octopart(object):
 		
 				
 		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args
+		
+	
+	def parts_search(self, **kwargs):
+		"""Execute a search over all result objects.
+		
+		@return: A tuple pair containing:
+			-A list of [OctopartPart, highlight_text] pairs. 
+			-A list of drilldown result dictionaries. 
+		If {drilldown.include : True} is not passed in the args dictionary, 
+		the drilldown list will be empty.
+		"""
+		
+		method = 'parts/search'
+		args = self.parts_search_args(kwargs)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -531,7 +592,22 @@ class Octopart(object):
 					drilldown.append(drill)
 		return (parts, drilldown)
 	
-	def parts_suggest(self, q, **args):
+	def parts_suggest_args(self, q, args):
+		"""Validate and format arguments passed to parts_suggest().
+		
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
+		"""
+		
+		arg_types = {'q': StringType, 'limit' : IntType}
+		arg_ranges = {'q': (2, float("inf")), 'limit' : (0, 10)}
+		args['q'] = q
+		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args
+		
+	
+	def parts_suggest(self, q, **kwargs):
 		"""Suggest a part search query string.
 		
 		Optimized for speed (useful for auto-complete features).
@@ -539,12 +615,7 @@ class Octopart(object):
 		"""
 		
 		method = 'parts/suggest'
-		arg_types = {'q': StringType, 'limit' : IntType}
-		arg_ranges = {'q': (2, float("inf")), 'limit' : (0, 10)}
-		
-		args['q'] = q
-		
-		self.__validate_args(args, arg_types, arg_ranges)
+		args = self.parts_suggest_args(q, kwargs)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -559,6 +630,20 @@ class Octopart(object):
 		else:
 			return None
 	
+	def parts_match_args(self, manufacturer_name, mpn):
+		"""Validate and format arguments passed to parts_match().
+		
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
+		"""
+		
+		arg_types = {'manufacturer_name': StringType, 'mpn' : StringType}
+		arg_ranges = {}
+		args = {'manufacturer_name': manufacturer_name, 'mpn' : mpn}
+		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args
+	
 	def parts_match(self, manufacturer_name, mpn):
 		"""Match (manufacturer name, mpn) to part uid. 
 		
@@ -566,11 +651,7 @@ class Octopart(object):
 		"""
 		
 		method = 'parts/match'
-		arg_types = {'manufacturer_name': StringType, 'mpn' : StringType}
-		arg_ranges = {}
-		args = {'manufacturer_name': manufacturer_name, 'mpn' : mpn}
-		
-		self.__validate_args(args, arg_types, arg_ranges)
+		args = self.parts_match_args(manufacturer_name, mpn)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -585,6 +666,20 @@ class Octopart(object):
 		else:
 			return None
 	
+	def partattributes_get_args(self, fieldname):
+		"""Validate and format arguments passed to partattributes_get().
+		
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
+		"""
+		
+		arg_types = {'fieldname': StringType}
+		arg_ranges = {}
+		args = {'fieldname': fieldname}
+		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args
+	
 	def partattributes_get(self, fieldname):
 		"""Fetch a partattribute object by its fieldname.
 		
@@ -592,11 +687,7 @@ class Octopart(object):
 		"""
 		
 		method = 'partattributes/get'
-		arg_types = {'fieldname': StringType}
-		arg_ranges = {}
-		args = {'fieldname': fieldname}
-		
-		self.__validate_args(args, arg_types, arg_ranges)
+		args = self.partattributes_get_args(fieldname)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -611,6 +702,23 @@ class Octopart(object):
 		else:
 			return None
 	
+	def partattributes_get_multi_args(self, fieldnames):
+		"""Validate and format arguments passed to partattributes_get_multi().
+		
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
+		"""
+		
+		arg_types = {'fieldnames': ListType}
+		arg_ranges = {}
+		args = {'fieldnames': fieldnames}
+		for name in args['fieldnames']:
+			if isinstance(name, basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args
+	
 	def partattributes_get_multi(self, fieldnames):
 		"""Fetch multiple partattributes objects by their fieldnames.
 		
@@ -618,14 +726,7 @@ class Octopart(object):
 		"""
 		
 		method = 'partattributes/get_multi'
-		arg_types = {'fieldnames': ListType}
-		arg_ranges = {}
-		args = {'fieldnames': fieldnames}
-		
-		for name in args['fieldnames']:
-			if isinstance(name, basestring) is False:
-				raise OctopartException(args, arg_types, arg_ranges, 2)
-		self.__validate_args(args, arg_types, arg_ranges)
+		args = self.partattributes_get_multi_args(fieldnames)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -641,16 +742,13 @@ class Octopart(object):
 				attributes.append(OctopartPartAttribute.new_from_dict(attribute))
 		return attributes
 	
-	def bom_match(self, lines, **kwargs):
-		"""Match a list of part numbers to Octopart part objects.
-		 
-		@return: A list of 3-item dicts containing:
-			-A list of OctopartParts.
-			-A reference string.
-			-A status string.
+	def bom_match_args(self, lines, args):
+		"""Validate and format arguments passed to bom_match().
+		
+		@return: Dictionary of valid arguments to pass to __get().
+		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
-		method = 'bom/match'
 		arg_types = {'lines': ListType, \
 					'optimize.return_stubs' : BooleanType, \
 					'optimize.hide_datasheets' : BooleanType, \
@@ -660,10 +758,8 @@ class Octopart(object):
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
 		arg_ranges = {}
-		
-		args = self.__translate_periods(kwargs)
+		args = self.__translate_periods(args)
 		args['lines'] = lines
-		
 		# DictType arguments need to be validated just like the normal args dict
 		lines_required_args = frozenset(('reference',))
 		lines_arg_types = {'q': StringType, \
@@ -686,6 +782,20 @@ class Octopart(object):
 
 		# Now check the primary args dict as normal
 		self.__validate_args(args, arg_types, arg_ranges)
+		
+		return args
+	
+	def bom_match(self, lines, **kwargs):
+		"""Match a list of part numbers to Octopart part objects.
+		 
+		@return: A list of 3-item dicts containing:
+			-A list of OctopartParts.
+			-A reference string.
+			-A status string.
+		"""
+		
+		method = 'bom/match'
+		args = self.bom_match_args(lines, kwargs)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
