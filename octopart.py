@@ -148,7 +148,7 @@ class OctopartPartAttribute(object):
 		return new
 	
 	def __init__(self, fieldname, displayname, attribute_type, metadata):
-		self.fieldname = fieldanme
+		self.fieldname = fieldname
 		self.displayname = displayname
 		self.type = attribute_type
 		self.metadata = metadata
