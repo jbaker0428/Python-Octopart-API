@@ -472,37 +472,42 @@ class Octopart(object):
 		
 		args = self.__translate_periods(kwargs)
 		# Method-specific checks not covered by validate_args:
-		for filter in args.get('filters', []):
-			if len(filter) != 2:
-				raise OctopartException(args, arg_types, arg_ranges, 9)
-			if isinstance(filter[0], basestring) is False:
-				raise OctopartException(args, arg_types, arg_ranges, 2)
-			if type(filter[1]) is not ListType:
-				raise OctopartException(args, arg_types, arg_ranges, 2)
-		
-		for filter in args.get('rangedfilters', []):
-			if len(filter) != 2:
-				raise OctopartException(args, arg_types, arg_ranges, 9)
-			if isinstance(filter[0], basestring) is False:
-				raise OctopartException(args, arg_types, arg_ranges, 2)
-			if type(filter[1]) is not ListType:
-				raise OctopartException(args, arg_types, arg_ranges, 2)
-			for range in filter[1]:
-				if len(range) != 2:
+		try:
+			for filter in args.get('filters', []):
+				if len(filter) != 2:
 					raise OctopartException(args, arg_types, arg_ranges, 9)
-				for limit in range:
-					if type(limit) not in (IntType, FloatType, NoneType, LongType):
-						raise OctopartException(args, arg_types, arg_ranges, 2)
+				if isinstance(filter[0], basestring) is False:
+					raise OctopartException(args, arg_types, arg_ranges, 2)
+				if type(filter[1]) is not ListType:
+					raise OctopartException(args, arg_types, arg_ranges, 2)
+			
+			for filter in args.get('rangedfilters', []):
+				if len(filter) != 2:
+					raise OctopartException(args, arg_types, arg_ranges, 9)
+				if isinstance(filter[0], basestring) is False:
+					raise OctopartException(args, arg_types, arg_ranges, 2)
+				if type(filter[1]) is not ListType:
+					raise OctopartException(args, arg_types, arg_ranges, 2)
+				for range in filter[1]:
+					if len(range) != 2:
+						raise OctopartException(args, arg_types, arg_ranges, 9)
+					for limit in range:
+						if type(limit) not in (IntType, FloatType, NoneType, LongType):
+							raise OctopartException(args, arg_types, arg_ranges, 2)
 		
-		for order in args.get('sortby', []):
-			if len(order) != 2:
-				raise OctopartException(args, arg_types, arg_ranges, 9)
-			if isinstance(order[0], basestring) is False:
-				raise OctopartException(args, arg_types, arg_ranges, 2)
-			if isinstance(order[1], basestring) is False:
-				raise OctopartException(args, arg_types, arg_ranges, 2)
-			if order[1] not in ('asc', 'desc'):
-				raise OctopartException(args, arg_types, arg_ranges, 10)
+			for order in args.get('sortby', []):
+				if len(order) != 2:
+					raise OctopartException(args, arg_types, arg_ranges, 9)
+				if isinstance(order[0], basestring) is False:
+					raise OctopartException(args, arg_types, arg_ranges, 2)
+				if isinstance(order[1], basestring) is False:
+					raise OctopartException(args, arg_types, arg_ranges, 2)
+				if order[1] not in ('asc', 'desc'):
+					raise OctopartException(args, arg_types, arg_ranges, 10)
+		
+		except OctopartException as e:
+			traceback.print_exc()
+			raise e
 				
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
