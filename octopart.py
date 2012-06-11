@@ -533,8 +533,9 @@ class Octopart(object):
 		"""Suggest a part search query string.
 		
 		Optimized for speed (useful for auto-complete features).
-		@return: A list of OctopartPart objects.
+		@return: A list of manufacturer part number strings.
 		"""
+		
 		method = 'parts/suggest'
 		arg_types = {'q': StringType, 'limit' : IntType}
 		arg_ranges = {'q': (2, float("inf")), 'limit' : range(0, 11)}
@@ -554,11 +555,10 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		parts = []
 		if json_obj:
-			for part in json_obj['results']:
-				parts.append(OctopartPart(part))
-		return parts
+			return json_obj['results']
+		else:
+			return None
 	
 	def parts_match(self, manufacturer_name, mpn):
 		"""Match (manufacturer name, mpn) to part uid. 
