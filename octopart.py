@@ -133,10 +133,10 @@ class OctopartPartAttribute(object):
 		new = cls(attribute_dict['fieldname'], attribute_dict['displayname'], attribute_dict['type'], attribute_dict.get('metadata', {}))
 		return new
 	
-	def __init__(self, fieldname, displayname, type, metadata):
+	def __init__(self, fieldname, displayname, attribute_type, metadata):
 		self.fieldname = fieldanme
 		self.displayname = displayname
-		self.type = type
+		self.type = attribute_type
 		self.metadata = metadata
 
 class Octopart(object):
