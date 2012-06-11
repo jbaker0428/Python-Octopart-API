@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.3"
+__version__ = "0.3.1"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
 __contributors__ = []
 
@@ -90,12 +90,23 @@ class OctopartCategory(object):
 		self.num_parts = num_parts
 
 class OctopartPart(object):
-	def __init__(self, part_dict):
+	
+	@classmethod
+	def new_from_dict(cls, part_dict):
+		"""Constructor for use with JSON resource dictionaries."""
+		
+		uid = part_dict.pop('uid')
+		mpn = part_dict.pop('mpn')
+		manufacturer = part_dict.pop('manufacturer')
+		detail_url = part_dict.pop('detail_url')
+		return cls(uid, mpn, manufacturer, detail_url, **part_dict)
+	
+	def __init__(self, uid, mpn, manufacturer, detail_url, **kwargs):
 		# If class data is in dictionary format, convert everything to class instances 
 		# Otherwise, assume it is already in class format and do nothing
-		if type(part_dict['manufacturer']) is DictType:
-			part_dict['manufacturer'] = OctopartBrand.new_from_dict(part_dict['manufacturer'])
-		for offer in part_dict.get('offers', []):
+		if type(manufacturer) is DictType:
+			manufacturer = OctopartBrand.new_from_dict(manufacturer)
+		for offer in kwargs.get('offers', []):
 			if type(offer['supplier']) is DictType:
 				offer['supplier'] = OctopartBrand.new_from_dict(offer['supplier'])
 			# Convert ISO 8601 datetime strings to datetime objects
@@ -105,27 +116,27 @@ class OctopartPart(object):
 					offer['update_ts'] = offer['update_ts'][0:-1]
 				offer['update_ts'] = datetime.datetime.strptime(offer['update_ts'], '%Y-%m-%dT%H:M:S')
 			
-		for spec in part_dict.get('specs', []):
+		for spec in kwargs.get('specs', []):
 			if type(spec['attribute']) is DictType:
 				spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
 		
-		self.uid = part_dict['uid']
-		self.mpn = part_dict['mpn']
-		self.manufacturer = part_dict['manufacturer']
-		self.detail_url = part_dict['detail_url']
-		self.avg_price = part_dict.get('avg_price')
-		self.avg_avail = part_dict.get('avg_avail')
-		self.market_status = part_dict.get('market_status')
-		self.num_suppliers = part_dict.get('num_suppliers')
-		self.num_authsuppliers = part_dict.get('num_authsuppliers')
-		self.short_description = part_dict.get('short_description', '')
-		self.category_ids = part_dict.get('category_ids', [])
-		self.images = part_dict.get('images', [])
-		self.datasheets = part_dict.get('datasheets', [])
-		self.descriptions = part_dict.get('descriptions', [])
-		self.hyperlinks = part_dict.get('hyperlinks', {})
-		self.offers = part_dict.get('offers', [])
-		self.specs = part_dict.get('specs', [])
+		self.uid = uid
+		self.mpn = mpn
+		self.manufacturer = manufacturer
+		self.detail_url = detail_url
+		self.avg_price = kwargs.get('avg_price')
+		self.avg_avail = kwargs.get('avg_avail')
+		self.market_status = kwargs.get('market_status')
+		self.num_suppliers = kwargs.get('num_suppliers')
+		self.num_authsuppliers = kwargs.get('num_authsuppliers')
+		self.short_description = kwargs.get('short_description', '')
+		self.category_ids = kwargs.get('category_ids', [])
+		self.images = kwargs.get('images', [])
+		self.datasheets = kwargs.get('datasheets', [])
+		self.descriptions = kwargs.get('descriptions', [])
+		self.hyperlinks = kwargs.get('hyperlinks', {})
+		self.offers = kwargs.get('offers', [])
+		self.specs = kwargs.get('specs', [])
 
 class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
@@ -394,7 +405,7 @@ class Octopart(object):
 			else:
 				raise e
 		if json_obj:
-			return OctopartPart(json_obj)
+			return OctopartPart.new_from_dict(json_obj)
 		else:
 			return None
 	
@@ -432,7 +443,7 @@ class Octopart(object):
 		parts = []
 		if json_obj:
 			for part in json_obj:
-				parts.append(OctopartPart(part))
+				parts.append(OctopartPart.new_from_dict(part))
 		return parts
 	
 	def parts_search(self, **kwargs):
@@ -526,7 +537,7 @@ class Octopart(object):
 		drilldown = []
 		if json_obj:
 			for result in json_obj['results']:
-				new_part = OctopartPart(result['item'])
+				new_part = OctopartPart.new_from_dict(result['item'])
 				parts.append([new_part, result['highlight']])
 			if args.get('drilldown.include'):
 				for drill in json_obj['drilldown']:
@@ -720,7 +731,7 @@ class Octopart(object):
 			for result in json_obj['results']:
 				items = []
 				for item in result['items']:
-					items.append(OctopartPart(part))
+					items.append(OctopartPart.new_from_dict(part))
 				results.append({'items' : items, 'reference' : result.get('reference', ''), 'status' : result['status']})
 		
 		return results
