@@ -43,7 +43,8 @@ class OctopartException(Exception):
 			  7: 'Unexpected HTTP Error 404.', \
 			  8: 'Unexpected HTTP Error 503.', \
 			  9: 'Argument is not a JSON-encoded list of pairs.', \
-			  10: 'Invalid sort order. Valid sort order strings are "asc" and "desc".'}
+			  10: 'Invalid sort order. Valid sort order strings are "asc" and "desc".', \
+			  11: 'List argument outside of allowed length.'}
 	
 	def __init__(self, args, arg_types, arg_ranges, error_code):
 		self.arguments = args
@@ -194,11 +195,13 @@ class Octopart(object):
 				if type(args[key]) is not arg_types[key]:
 					raise OctopartException(args, arg_types, arg_ranges, 2)
 			if key in arg_ranges.keys():
-				if arg_types[key] is StringType:
-					if len(args[key]) < arg_ranges[key][0] or len(args[key]) > arg_ranges[key][1]:
+				if len(args[key]) < arg_ranges[key][0] or len(args[key]) > arg_ranges[key][1]:
+					if arg_types[key] is StringType:
 						raise OctopartException(args, arg_types, arg_ranges, 5)
-				elif args[key] not in arg_ranges[key]:
-					raise OctopartException(args, arg_types, arg_ranges, 4)
+					elif arg_types[key] is ListType:
+						raise OctopartException(args, arg_types, arg_ranges, 11)
+					elif arg_types[key] in (IntType, LongType, FloatType):
+						raise OctopartException(args, arg_types, arg_ranges, 4)
 		if len(args_set) != len(args.keys()):
 			raise OctopartException(args, arg_types, arg_ranges, 3)
 	
@@ -460,10 +463,10 @@ class Octopart(object):
 					'optimize.hide_hide_offers' : BooleanType, \
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
-		arg_ranges = {'start' : range(1001), \
-					'limit' : range(0, 101), \
-					'drilldown.facets.start' : range(1001), \
-					'drilldown.facets.limit' : range(101)}
+		arg_ranges = {'start' : (0, 1000), \
+					'limit' : (0, 100), \
+					'drilldown.facets.start' : (0, 1000), \
+					'drilldown.facets.limit' : (0, 100)}
 		
 		args = self.__translate_periods(kwargs)
 		# Method-specific checks not covered by validate_args:
@@ -531,7 +534,7 @@ class Octopart(object):
 		
 		method = 'parts/suggest'
 		arg_types = {'q': StringType, 'limit' : IntType}
-		arg_ranges = {'q': (2, float("inf")), 'limit' : range(0, 11)}
+		arg_ranges = {'q': (2, float("inf")), 'limit' : (0, 10)}
 		
 		args['q'] = q
 		
