@@ -181,27 +181,23 @@ class Octopart(object):
 		valid_args = frozenset(arg_types.keys())
 		args_set = set(args.keys())
 		
-		try:
-			if args_set.issubset(valid_args) is False:
-				raise OctopartException(args, arg_types, arg_ranges, 1)
-			for key in args_set:
+		if args_set.issubset(valid_args) is False:
+			raise OctopartException(args, arg_types, arg_ranges, 1)
+		for key in args_set:
+			if arg_types[key] is StringType:
+				if isinstance(args[key], basestring) is False:
+					raise OctopartException(args, arg_types, arg_ranges, 2)
+			else:
+				if type(args[key]) is not arg_types[key]:
+					raise OctopartException(args, arg_types, arg_ranges, 2)
+			if key in arg_ranges.keys():
 				if arg_types[key] is StringType:
-					if isinstance(args[key], basestring) is False:
-						raise OctopartException(args, arg_types, arg_ranges, 2)
-				else:
-					if type(args[key]) is not arg_types[key]:
-						raise OctopartException(args, arg_types, arg_ranges, 2)
-				if key in arg_ranges.keys():
-					if arg_types[key] is StringType:
-						if len(args[key]) < arg_ranges[key][0] or len(args[key]) > arg_ranges[key][1]:
-							raise OctopartException(args, arg_types, arg_ranges, 5)
-					elif args[key] not in arg_ranges[key]:
-						raise OctopartException(args, arg_types, arg_ranges, 4)
-			if len(args_set) != len(args.keys()):
-				raise OctopartException(args, arg_types, arg_ranges, 3)
-		except OctopartException as e:
-			traceback.print_exc()
-			raise e
+					if len(args[key]) < arg_ranges[key][0] or len(args[key]) > arg_ranges[key][1]:
+						raise OctopartException(args, arg_types, arg_ranges, 5)
+				elif args[key] not in arg_ranges[key]:
+					raise OctopartException(args, arg_types, arg_ranges, 4)
+		if len(args_set) != len(args.keys()):
+			raise OctopartException(args, arg_types, arg_ranges, 3)
 	
 	def __get(self, method, args):
 		"""Makes a GET request with the given API method and arguments.
@@ -294,10 +290,7 @@ class Octopart(object):
 		arg_ranges = {}
 		args = {'id' : id}
 		
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -323,10 +316,7 @@ class Octopart(object):
 		arg_ranges = {}
 		args = {'ids' : ids}
 		
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -353,10 +343,7 @@ class Octopart(object):
 		arg_types = {'q': StringType, 'start' : IntType, 'limit' : IntType, 'ancestor_id' : IntType}
 		arg_ranges = {}
 		
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -391,10 +378,7 @@ class Octopart(object):
 		args = self.__translate_periods(kwargs)
 		args['uid'] = uid
 		
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -427,10 +411,7 @@ class Octopart(object):
 		args = self.__translate_periods(kwargs)
 		args['uids'] = uids
 		
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -483,47 +464,40 @@ class Octopart(object):
 		
 		args = self.__translate_periods(kwargs)
 		# Method-specific checks not covered by validate_args:
-		try:
-			for filter in args.get('filters', []):
-				if len(filter) != 2:
-					raise OctopartException(args, arg_types, arg_ranges, 9)
-				if isinstance(filter[0], basestring) is False:
-					raise OctopartException(args, arg_types, arg_ranges, 2)
-				if type(filter[1]) is not ListType:
-					raise OctopartException(args, arg_types, arg_ranges, 2)
-			
-			for filter in args.get('rangedfilters', []):
-				if len(filter) != 2:
-					raise OctopartException(args, arg_types, arg_ranges, 9)
-				if isinstance(filter[0], basestring) is False:
-					raise OctopartException(args, arg_types, arg_ranges, 2)
-				if type(filter[1]) is not ListType:
-					raise OctopartException(args, arg_types, arg_ranges, 2)
-				for r in filter[1]:
-					if len(r) != 2:
-						raise OctopartException(args, arg_types, arg_ranges, 9)
-					for limit in r:
-						if type(limit) not in (IntType, FloatType, NoneType, LongType):
-							raise OctopartException(args, arg_types, arg_ranges, 2)
+		for filter in args.get('filters', []):
+			if len(filter) != 2:
+				raise OctopartException(args, arg_types, arg_ranges, 9)
+			if isinstance(filter[0], basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			if type(filter[1]) is not ListType:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
 		
-			for order in args.get('sortby', []):
-				if len(order) != 2:
+		for filter in args.get('rangedfilters', []):
+			if len(filter) != 2:
+				raise OctopartException(args, arg_types, arg_ranges, 9)
+			if isinstance(filter[0], basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			if type(filter[1]) is not ListType:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			for r in filter[1]:
+				if len(r) != 2:
 					raise OctopartException(args, arg_types, arg_ranges, 9)
-				if isinstance(order[0], basestring) is False:
-					raise OctopartException(args, arg_types, arg_ranges, 2)
-				if isinstance(order[1], basestring) is False:
-					raise OctopartException(args, arg_types, arg_ranges, 2)
-				if order[1] not in ('asc', 'desc'):
-					raise OctopartException(args, arg_types, arg_ranges, 10)
+				for limit in r:
+					if type(limit) not in (IntType, FloatType, NoneType, LongType):
+						raise OctopartException(args, arg_types, arg_ranges, 2)
+	
+		for order in args.get('sortby', []):
+			if len(order) != 2:
+				raise OctopartException(args, arg_types, arg_ranges, 9)
+			if isinstance(order[0], basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			if isinstance(order[1], basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			if order[1] not in ('asc', 'desc'):
+				raise OctopartException(args, arg_types, arg_ranges, 10)
 		
-		except OctopartException as e:
-			traceback.print_exc()
-			raise e
 				
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -558,10 +532,7 @@ class Octopart(object):
 		
 		args['q'] = q
 		
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -587,10 +558,7 @@ class Octopart(object):
 		arg_ranges = {}
 		args = {'manufacturer_name': manufacturer_name, 'mpn' : mpn}
 		
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -616,10 +584,7 @@ class Octopart(object):
 		arg_ranges = {}
 		args = {'fieldname': fieldname}
 		
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -645,10 +610,7 @@ class Octopart(object):
 		arg_ranges = {}
 		args = {'fieldnames': fieldnames}
 		
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -700,23 +662,15 @@ class Octopart(object):
 					'reference' : StringType}
 		lines_arg_ranges = {'limit' : range(21)}
 		for line in lines:
-			try:
-				self.__validate_args(line, lines_arg_types, lines_arg_ranges)
-				# Method-specific checks not covered by validate_args:
-				if lines_required_args.issubset(set(line.keys())) is False:
-					raise OctopartException(line, lines_arg_types, lines_arg_ranges, 0)
-				if (line.get('start', 0) + line.get('match', 0)) > 100:
-					raise OctopartException(line, lines_arg_types, lines_arg_ranges, 6)
-				
-			except OctopartException as e:
-				if e.code == 0 or e.code == 6:
-					traceback.print_exc()
-				raise e
+			self.__validate_args(line, lines_arg_types, lines_arg_ranges)
+			# Method-specific checks not covered by validate_args:
+			if lines_required_args.issubset(set(line.keys())) is False:
+				raise OctopartException(line, lines_arg_types, lines_arg_ranges, 0)
+			if (line.get('start', 0) + line.get('match', 0)) > 100:
+				raise OctopartException(line, lines_arg_types, lines_arg_ranges, 6)
+
 		# Now check the primary args dict as normal
-		try:
-			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException as e:
-			raise e
+		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
