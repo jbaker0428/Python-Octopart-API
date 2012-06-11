@@ -157,7 +157,7 @@ class Octopart(object):
 		self.callback = callback
 		self.pretty_print = pretty_print
 	
-	def __validate_args(args, arg_types, arg_ranges):
+	def __validate_args(self, args, arg_types, arg_ranges):
 		""" Checks method arguments for syntax errors.
 		
 		@param args: Dictionary of argumets to check
