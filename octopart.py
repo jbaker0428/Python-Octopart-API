@@ -323,6 +323,9 @@ class Octopart(object):
 		args = {'ids' : ids}
 		
 		self.__validate_args(args, arg_types, arg_ranges)
+		for id in args['ids']:
+			if type(id) not in (IntType, LongType):
+				raise OctopartException(args, arg_types, arg_ranges, 2)
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -417,6 +420,9 @@ class Octopart(object):
 		args = self.__translate_periods(kwargs)
 		args['uids'] = uids
 		
+		for id in args['uids']:
+			if type(id) not in (IntType, LongType):
+				raise OctopartException(args, arg_types, arg_ranges, 2)
 		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
@@ -616,6 +622,9 @@ class Octopart(object):
 		arg_ranges = {}
 		args = {'fieldnames': fieldnames}
 		
+		for name in args['fieldnames']:
+			if isinstance(name, basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
 		self.__validate_args(args, arg_types, arg_ranges)
 		try:
 			json_obj = self.__get(method, args)
