@@ -285,8 +285,8 @@ class Octopart(object):
 		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -314,8 +314,8 @@ class Octopart(object):
 		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -344,8 +344,8 @@ class Octopart(object):
 		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -382,8 +382,8 @@ class Octopart(object):
 		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -418,8 +418,8 @@ class Octopart(object):
 		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -506,8 +506,8 @@ class Octopart(object):
 				
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -544,8 +544,8 @@ class Octopart(object):
 		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -573,8 +573,8 @@ class Octopart(object):
 		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -602,8 +602,8 @@ class Octopart(object):
 		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -631,8 +631,8 @@ class Octopart(object):
 		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
@@ -695,12 +695,12 @@ class Octopart(object):
 			except OctopartException as e:
 				if e.code == 0 or e.code == 6:
 					traceback.print_exc()
-				return None
+				raise e
 		# Now check the primary args dict as normal
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
-		except OctopartException:
-			return None
+		except OctopartException as e:
+			raise e
 		try:
 			json_obj = self.__get(method, args)
 		except urllib2.HTTPError as e:
