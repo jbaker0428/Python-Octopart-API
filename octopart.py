@@ -103,7 +103,7 @@ class OctopartPart(object):
 				# Strip 'Z' UTC notation that can't be parsed
 				if offer['update_ts'][-1] == 'Z':
 					offer['update_ts'] = offer['update_ts'][0:-1]
-				offer['update_ts'] = datetime.strptime(offer['update_ts'], '%Y-%m-%dT%H:M:S')
+				offer['update_ts'] = datetime.datetime.strptime(offer['update_ts'], '%Y-%m-%dT%H:M:S')
 			
 		for spec in part_dict.get('specs', []):
 			if type(spec['attribute']) is DictType:
