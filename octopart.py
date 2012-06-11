@@ -187,7 +187,7 @@ class Octopart(object):
 			if arg_types[key] is StringType:
 				if isinstance(args[key], basestring) is False:
 					raise OctopartException(args, arg_types, arg_ranges, 2)
-			elif arg_types[key] is TupleType:	# Tuple of types
+			elif type(arg_types[key]) is TupleType:	# Tuple of types
 				if type(args[key]) not in arg_types[key]:
 					raise OctopartException(args, arg_types, arg_ranges, 2)
 			else:
