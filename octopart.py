@@ -403,7 +403,7 @@ class Octopart(object):
 		"""
 		
 		method = 'parts/get_multi'
-		arg_types = {'uids': StringType, \
+		arg_types = {'uids': ListType, \
 					'optimize.hide_datasheets' : BooleanType, \
 					'optimize.hide_descriptions' : BooleanType, \
 					'optimize.hide_images' : BooleanType, \
