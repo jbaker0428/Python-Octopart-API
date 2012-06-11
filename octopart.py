@@ -235,7 +235,7 @@ class Octopart(object):
 
 			req_url = req_url + '?' + '&'.join(arg_strings)
 		
-		response = urllib2.urlopen(req_url).read() 
+		response = urllib2.urlopen(req_url).read()
 		json_obj = json.loads(unicode(response))
 		return json_obj
 	
