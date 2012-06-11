@@ -416,7 +416,7 @@ class Octopart(object):
 					'optimize.hide_hide_offers' : BooleanType, \
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
-		arg_ranges = {}
+		arg_ranges = {'uids': (0, 100)}
 		args = self.__translate_periods(kwargs)
 		args['uids'] = uids
 		
