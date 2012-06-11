@@ -223,7 +223,7 @@ class Octopart(object):
 			req_url = req_url + '?' + '&'.join(arg_strings)
 		
 		response = urllib2.urlopen(req_url).read() 
-		json_obj = json.loads(response)
+		json_obj = json.loads(unicode(response))
 		return json_obj
 	
 	def __translate_periods(self, args):
