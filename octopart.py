@@ -26,7 +26,6 @@ import urllib2
 import json
 from types import *
 import datetime
-import traceback
 
 class OctopartException(Exception):
 	
