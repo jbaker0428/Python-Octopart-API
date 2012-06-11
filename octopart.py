@@ -74,7 +74,7 @@ class OctopartCategory(object):
 	def new_from_dict(cls, category_dict):
 		new = cls(category_dict['id'], category_dict['parent_id'], category_dict['nodename'], \
 							category_dict['images'], category_dict['children_ids'], category_dict['ancestor_ids'], \
-							category_dict['ancestors'], category_dict['num_parts'])
+							category_dict.get('ancestors', []), category_dict['num_parts'])
 		return new
 	
 	def __init__(self, id, parent_id, nodename, images, children_ids, ancestor_ids, ancestors, num_parts):
@@ -93,7 +93,7 @@ class OctopartPart(object):
 		# Otherwise, assume it is already in class format and do nothing
 		if type(part_dict['manufacturer']) is DictType:
 			part_dict['manufacturer'] = OctopartBrand.new_from_dict(part_dict['manufacturer'])
-		for offer in part_dict['offers']:
+		for offer in part_dict.get('offers', []):
 			if type(offer['supplier']) is DictType:
 				offer['supplier'] = OctopartBrand.new_from_dict(offer['supplier'])
 			# Convert ISO 8601 datetime strings to datetime objects
@@ -103,7 +103,7 @@ class OctopartPart(object):
 					offer['update_ts'] = offer['update_ts'][0:-1]
 				offer['update_ts'] = datetime.strptime(offer['update_ts'], '%Y-%m-%dT%H:M:S')
 			
-		for spec in part_dict['specs']:
+		for spec in part_dict.get('specs', []):
 			if type(spec['attribute']) is DictType:
 				spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
 		
@@ -111,27 +111,26 @@ class OctopartPart(object):
 		self.mpn = part_dict['mpn']
 		self.manufacturer = part_dict['manufacturer']
 		self.detail_url = part_dict['detail_url']
-		self.avg_price = part_dict['avg_price']
-		self.avg_avail = part_dict['avg_avail']
-		self.market_status = part_dict['market_status']
-		self.num_suppliers = part_dict['num_suppliers']
-		self.num_authsuppliers = part_dict['num_authsuppliers']
-		self.short_description = part_dict['short_description']
-		self.category_ids = part_dict['category_ids']
-		self.images = part_dict['images']
-		self.datasheets = part_dict['datasheets']
-		self.descriptions = part_dict['descriptions']
-		self.hyperlinks = part_dict['hyperlinks']
-		self.offers = part_dict['offers']
-		self.specs = part_dict['specs']
+		self.avg_price = part_dict.get('avg_price')
+		self.avg_avail = part_dict.get('avg_avail')
+		self.market_status = part_dict.get('market_status')
+		self.num_suppliers = part_dict.get('num_suppliers')
+		self.num_authsuppliers = part_dict.get('num_authsuppliers')
+		self.short_description = part_dict.get('short_description', '')
+		self.category_ids = part_dict.get('category_ids', [])
+		self.images = part_dict.get('images', [])
+		self.datasheets = part_dict.get('datasheets', [])
+		self.descriptions = part_dict.get('descriptions', [])
+		self.hyperlinks = part_dict.get('hyperlinks', {})
+		self.offers = part_dict.get('offers', [])
+		self.specs = part_dict.get('specs', [])
 
 class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
 	TYPE_NUMBER = 'number'
-	
 	@classmethod
 	def new_from_dict(cls, attribute_dict):
-		new = cls(attribute_dict['fieldname'], attribute_dict['displayname'], attribute_dict['type'], attribute_dict['metadata'])
+		new = cls(attribute_dict['fieldname'], attribute_dict['displayname'], attribute_dict['type'], attribute_dict.get('metadata', {}))
 		return new
 	
 	def __init__(self, fieldname, displayname, type, metadata):
@@ -200,11 +199,11 @@ class Octopart(object):
 		
 		# Construct the request URL
 		req_url = Octopart.api_url + method
-		if self.apikey is not None:
+		if self.apikey:
 			args['apikey'] = self.apikey
-		if self.callback is not None:
+		if self.callback:
 			args['callback'] = self.callback
-		if self.pretty_print is True:
+		if self.pretty_print:
 			args['pretty_print'] = self.pretty_print
 		if len(args) > 0:
 			arg_strings = []
@@ -294,7 +293,10 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		return OctopartCategory.new_from_dict(json_obj)
+		if json_obj:
+			return OctopartCategory.new_from_dict(json_obj)
+		else:
+			return None
 	
 	def categories_get_multi(self, ids):
 		"""Fetch multiple category objects by their ids. 
@@ -321,9 +323,11 @@ class Octopart(object):
 			else:
 				raise e
 		categories = []
-		for category in json_obj:
-			categories.append(OctopartCategory.new_from_dict(category))
+		if json_obj:
+			for category in json_obj:
+				categories.append(OctopartCategory.new_from_dict(category))
 		return categories
+		
 	
 	def categories_search(self, **args):
 		"""Execute search over all result objects. 
@@ -349,9 +353,10 @@ class Octopart(object):
 			else:
 				raise e
 		categories = []
-		for result in json_obj['results']:
-			new_category = OctopartCategory.new_from_dict(result['item'])
-			categories.append([new_category, result['highlight']])
+		if json_obj:
+			for result in json_obj['results']:
+				new_category = OctopartCategory.new_from_dict(result['item'])
+				categories.append([new_category, result['highlight']])
 		return categories
 	
 	def parts_get(self, uid, **kwargs):
@@ -385,7 +390,10 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		return OctopartPart(json_obj)
+		if json_obj:
+			return OctopartPart(json_obj)
+		else:
+			return None
 	
 	def parts_get_multi(self, uids, **kwargs):
 		"""Fetch multiple part objects by their ids.
@@ -419,8 +427,9 @@ class Octopart(object):
 			else:
 				raise e
 		parts = []
-		for part in json_obj:
-			parts.append(OctopartPart(part))
+		if json_obj:
+			for part in json_obj:
+				parts.append(OctopartPart(part))
 		return parts
 	
 	def parts_search(self, **kwargs):
@@ -459,7 +468,6 @@ class Octopart(object):
 					'drilldown.facets.limit' : range(101)}
 		
 		args = self.__translate_periods(kwargs)
-		
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
 		except OctopartException:
@@ -475,13 +483,14 @@ class Octopart(object):
 				raise e
 		parts = []
 		drilldown = []
-		for result in json_obj['results']:
-			new_part = OctopartPart(result['item'])
-			parts.append([new_part, result['highlight']])
-		if 'drilldown.include' in args and args['drilldown.include'] is True:
-			for drill in json_obj['drilldown']:
-				drill['attribute'] = OctopartPartAttribute.new_from_dict(drill['attribute'])
-				drilldown.append(drill)
+		if json_obj:
+			for result in json_obj['results']:
+				new_part = OctopartPart(result['item'])
+				parts.append([new_part, result['highlight']])
+			if args.get('drilldown.include'):
+				for drill in json_obj['drilldown']:
+					drill['attribute'] = OctopartPartAttribute.new_from_dict(drill['attribute'])
+					drilldown.append(drill)
 		return (parts, drilldown)
 	
 	def parts_suggest(self, q, **args):
@@ -490,7 +499,6 @@ class Octopart(object):
 		Optimized for speed (useful for auto-complete features).
 		@return: A list of OctopartPart objects.
 		"""
-		
 		method = 'parts/suggest'
 		arg_types = {'q': StringType, 'limit' : IntType}
 		arg_ranges = {'q': (2, float("inf")), 'limit' : range(0, 11)}
@@ -511,8 +519,9 @@ class Octopart(object):
 			else:
 				raise e
 		parts = []
-		for part in json_obj['results']:
-			parts.append(OctopartPart(part))
+		if json_obj:
+			for part in json_obj['results']:
+				parts.append(OctopartPart(part))
 		return parts
 	
 	def parts_match(self, manufacturer_name, mpn):
@@ -539,7 +548,10 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		return json_obj
+		if json_obj:
+			return json_obj
+		else:
+			return None
 	
 	def partattributes_get(self, fieldname):
 		"""Fetch a partattribute object by its fieldname.
@@ -565,7 +577,10 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		return OctopartPartAttribute.new_from_dict(json_obj)
+		if json_obj:
+			return OctopartPartAttribute.new_from_dict(json_obj)
+		else:
+			return None
 	
 	def partattributes_get_multi(self, fieldnames):
 		"""Fetch multiple partattributes objects by their fieldnames.
@@ -592,8 +607,9 @@ class Octopart(object):
 			else:
 				raise e
 		attributes = []
-		for attribute in json_obj:
-			attributes.append(OctopartPartAttribute.new_from_dict(attribute))
+		if json_obj:
+			for attribute in json_obj:
+				attributes.append(OctopartPartAttribute.new_from_dict(attribute))
 		return attributes
 	
 	def bom_match(self, lines, **kwargs):
@@ -637,7 +653,7 @@ class Octopart(object):
 				# Method-specific checks not covered by validate_args:
 				if lines_required_args.issubset(set(line.keys())) is False:
 					raise OctopartException(line, lines_arg_types, lines_arg_ranges, 0)
-				if (line['start'] + line['match']) > 100:
+				if (line.get('start', 0) + line.get('match', 0)) > 100:
 					raise OctopartException(line, lines_arg_types, lines_arg_ranges, 6)
 				
 			except OctopartException as e:
@@ -659,10 +675,11 @@ class Octopart(object):
 			else:
 				raise e
 		results = []
-		for result in json_obj['results']:
-			items = []
-			for item in result['items']:
-				items.append(OctopartPart(part))
-			results.append({'items' : items, 'reference' : result['reference'], 'status' : result['status']})
+		if json_obj:
+			for result in json_obj['results']:
+				items = []
+				for item in result['items']:
+					items.append(OctopartPart(part))
+				results.append({'items' : items, 'reference' : result.get('reference', ''), 'status' : result['status']})
 		
 		return results
