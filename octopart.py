@@ -499,10 +499,10 @@ class Octopart(object):
 					raise OctopartException(args, arg_types, arg_ranges, 2)
 				if type(filter[1]) is not ListType:
 					raise OctopartException(args, arg_types, arg_ranges, 2)
-				for range in filter[1]:
-					if len(range) != 2:
+				for r in filter[1]:
+					if len(r) != 2:
 						raise OctopartException(args, arg_types, arg_ranges, 9)
-					for limit in range:
+					for limit in r:
 						if type(limit) not in (IntType, FloatType, NoneType, LongType):
 							raise OctopartException(args, arg_types, arg_ranges, 2)
 		
