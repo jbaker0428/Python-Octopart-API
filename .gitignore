@@ -5,3 +5,4 @@ desktop.ini
 .*project
 *.exe
 *.txt
+libs/*.*
