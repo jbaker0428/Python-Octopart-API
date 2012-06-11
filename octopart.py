@@ -35,13 +35,15 @@ class OctopartException(Exception):
 	__slots__ = ["arguments", "arg_types", "arg_ranges", "code"]
 	errors = {0: 'Required argument missing from method call.', \
 			  1: 'Passed an invalid argument for this method.', \
-			  2: 'Malformed argument.', \
+			  2: 'Argument type mismatch.', \
 			  3: 'An argument was passed more than once.', \
 			  4: 'Numeric argument value out of valid range.', \
 			  5: 'String argument outside of allowed length.', \
 			  6: 'Value of (start+limit) in a bom/match line argument exceeds 100.', \
-			  7: 'Unexpected HTTP Error 404', \
-			  8: 'Unexpected HTTP Error 503'}
+			  7: 'Unexpected HTTP Error 404.', \
+			  8: 'Unexpected HTTP Error 503.', \
+			  9: 'Argument is not a JSON-encoded list of pairs.', \
+			  10: 'Invalid sort order. Valid sort order strings are "asc" and "desc".'}
 	
 	def __init__(self, args, arg_types, arg_ranges, error_code):
 		self.arguments = args
@@ -128,6 +130,7 @@ class OctopartPart(object):
 class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
 	TYPE_NUMBER = 'number'
+	
 	@classmethod
 	def new_from_dict(cls, attribute_dict):
 		new = cls(attribute_dict['fieldname'], attribute_dict['displayname'], attribute_dict['type'], attribute_dict.get('metadata', {}))
@@ -468,6 +471,39 @@ class Octopart(object):
 					'drilldown.facets.limit' : range(101)}
 		
 		args = self.__translate_periods(kwargs)
+		# Method-specific checks not covered by validate_args:
+		for filter in args.get('filters', []):
+			if len(filter) != 2:
+				raise OctopartException(args, arg_types, arg_ranges, 9)
+			if isinstance(filter[0], basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			if type(filter[1]) is not ListType:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+		
+		for filter in args.get('rangedfilters', []):
+			if len(filter) != 2:
+				raise OctopartException(args, arg_types, arg_ranges, 9)
+			if isinstance(filter[0], basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			if type(filter[1]) is not ListType:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			for range in filter[1]:
+				if len(range) != 2:
+					raise OctopartException(args, arg_types, arg_ranges, 9)
+				for limit in range:
+					if type(limit) not in (IntType, FloatType, NoneType, LongType):
+						raise OctopartException(args, arg_types, arg_ranges, 2)
+		
+		for order in args.get('sortby', []):
+			if len(order) != 2:
+				raise OctopartException(args, arg_types, arg_ranges, 9)
+			if isinstance(order[0], basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			if isinstance(order[1], basestring) is False:
+				raise OctopartException(args, arg_types, arg_ranges, 2)
+			if order[1] not in ('asc', 'desc'):
+				raise OctopartException(args, arg_types, arg_ranges, 10)
+				
 		try:
 			self.__validate_args(args, arg_types, arg_ranges)
 		except OctopartException:
