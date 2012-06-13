@@ -33,7 +33,7 @@ categories_get_multi_json = get('http://octopart.com/api/v2/categories/get_multi
 categories_search_json = get('http://octopart.com/api/v2/categories/search?q=resistor&apikey=92bdca1b')
 parts_get_json = get('http://octopart.com/api/v2/parts/get?uid=39619421&apikey=92bdca1b')
 parts_get_multi_json = get('http://octopart.com/api/v2/parts/get_multi?uids=[39619421,29035751,31119928]&apikey=92bdca1b')
-parts_search_json = get('http://octopart.com/api/v2/parts/search?q=resistor&limit=20&apikey=92bdca1b')
+parts_search_json = get('http://octopart.com/api/v2/parts/search?q=resistor&limit=10&apikey=92bdca1b')
 parts_suggest_json = get('http://octopart.com/api/v2/parts/suggest?q=sn74f&limit=3&apikey=92bdca1b')
 parts_match_json = get('http://octopart.com/api/v2/parts/match?manufacturer_name=texas+instruments&mpn=SN74LS240N&apikey=92bdca1b')
 partattributes_get_json = get('http://octopart.com/api/v2/partattributes/get?fieldname=capacitance&apikey=92bdca1b')
@@ -93,7 +93,7 @@ class DataEquivalenceTest(unittest.TestCase):
 		print 'test_parts_get_multi OK'
 	
 	def test_parts_search(self):
-		parts = api.parts_search(q='resistor', limit=20)
+		parts = api.parts_search(q='resistor', limit=10)
 		for part in parts:
 			assert isinstance(part[0], OctopartPart)
 			truth = [part[0].equals_json(x['item']) for x in parts_search_json['results']]
