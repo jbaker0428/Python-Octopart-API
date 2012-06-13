@@ -171,7 +171,7 @@ class OctopartCategory(object):
 					return False
 				if sorted(self.ancestor_ids) != sorted(c.ancestor_ids):
 					return False
-				if set(self.ancestors) != set(c.ancestors)
+				if set(self.ancestors) != set(c.ancestors):
 					return False
 				if self.num_parts != c.num_parts:
 					return False
@@ -403,7 +403,7 @@ class OctopartPartAttribute(object):
 		return not self.__eq__(pa)
 	
 	def __hash__(self):
-		return (hash(self.__class__), hash(self.fieldname)
+		return (hash(self.__class__), hash(self.fieldname))
 
 class Octopart(object):
 	
