@@ -105,6 +105,9 @@ class OctopartBrand(object):
 	
 	def __ne__(self, b):
 		return not self.__eq__(b)
+	
+	def __hash__(self):
+		return (hash(self.__class__), hash(self.id))
 
 class OctopartCategory(object):
 	
@@ -180,6 +183,9 @@ class OctopartCategory(object):
 	
 	def __ne__(self, c):
 		return not self.__eq__(c)
+	
+	def __hash__(self):
+		return (hash(self.__class__), hash(self.id))
 
 class OctopartPart(object):
 	
@@ -337,6 +343,9 @@ class OctopartPart(object):
 	
 	def __ne__(self, p):
 		return not self.__eq__(p)
+	
+	def __hash__(self):
+		return (hash(self.__class__), hash(self.uid), hash(self.mpn))
 
 class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
@@ -392,6 +401,9 @@ class OctopartPartAttribute(object):
 	
 	def __ne__(self, pa):
 		return not self.__eq__(pa)
+	
+	def __hash__(self):
+		return (hash(self.__class__), hash(self.fieldname)
 
 class Octopart(object):
 	
