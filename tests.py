@@ -72,14 +72,38 @@ class DataEquivalenceTest(unittest.TestCase):
 		categories = api.categories_search(q='resistor')
 		for category in categories:
 			assert isinstance(category[0], OctopartCategory)
-			results = categories_search_json['results']
 			truth = [category[0].equals_json(x['item']) for x in categories_search_json['results']]
 			assert True in truth
 			assert truth.count(True) == 1
 		print 'test_categories_search OK'
 	
+	def test_parts_get(self):
+		part = api.parts_get(39619421)
+		assert isinstance(part, OctopartPart)
+		assert(part.equals_json(parts_get_json))
+		print 'test_parts_get OK'
+	
+	def test_parts_get_multi(self):
+		parts = api.parts_get_multi([39619421,29035751,31119928])
+		for part in parts:
+			assert isinstance(part, OctopartPart)
+			truth = [part.equals_json(p) for p in parts_get_multi_json]
+			assert True in truth
+			assert truth.count(True) == 1
+		print 'test_parts_get_multi OK'
+	
+	def test_parts_search(self):
+		parts = api.parts_search(q='resistor', limit=20)
+		for part in parts:
+			assert isinstance(part[0], OctopartPart)
+			truth = [part[0].equals_json(x['item']) for x in parts_search_json['results']]
+			assert True in truth
+			assert truth.count(True) == 1
+		print 'test_parts_search OK'
+	
 	def tearDown(self):
 		unittest.TestCase.tearDown(self)
 
 if __name__ == '__main__':
-	unittest.main()	
+	unittest.main()
+
