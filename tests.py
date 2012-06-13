@@ -53,6 +53,31 @@ class DataEquivalenceTest(unittest.TestCase):
 	def setUp(self):
 		unittest.TestCase.setUp(self)
 	
+	def test_categories_get(self):
+		category = api.categories_get(4174)
+		assert isinstance(category, OctopartCategory)
+		assert(category.equals_json(categories_get_json))
+		print 'test_categories_get OK'
+	
+	def test_categories_get_multi(self):
+		categories = api.categories_get_multi([4215,4174,4780])
+		for category in categories:
+			assert isinstance(category, OctopartCategory)
+			truth = [category.equals_json(x) for x in categories_get_multi_json]
+			assert True in truth
+			assert truth.count(True) == 1
+		print 'test_categories_get_multi OK'
+	
+	def test_categories_search(self):
+		categories = api.categories_search(q='resistor')
+		for category in categories:
+			assert isinstance(category[0], OctopartCategory)
+			results = categories_search_json['results']
+			truth = [category[0].equals_json(x['item']) for x in categories_search_json['results']]
+			assert True in truth
+			assert truth.count(True) == 1
+		print 'test_categories_search OK'
+	
 	def tearDown(self):
 		unittest.TestCase.tearDown(self)
 
