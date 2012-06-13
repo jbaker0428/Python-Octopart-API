@@ -70,8 +70,41 @@ class OctopartBrand(object):
 		self.id = id
 		self.displayname = dispname
 		self.homepage_url = homepage
+	
+	def equals_json(self, resource):
+		"""Checks the object for data equivalence to a JSON Brand resource."""
+		
+		if isinstance(resource, DictType) and resource.get('__class__') == 'Brand': 
+			if self.id != resource.get('id'):
+				return False
+			if self.displayname != resource.get('displayname'):
+				return False
+			if self.homepage_url != resource.get('homepage_url'):
+				return False
+		else:
+			return False
+		return True
+	
+	def __eq__(self, b):
+		if isinstance(b, OctopartBrand):
+			try:
+				if self.id != b.id:
+					return False
+				if self.displayname != b.displayname:
+					return False
+				if self.homepage_url != b.homepage_url:
+					return False
+			except AttributeError:
+				return False
+		else:
+			return False
+		return True
+	
+	def __neq__(self, b):
+		return not self.__eq__(b)
 
 class OctopartCategory(object):
+	
 	@classmethod
 	def new_from_dict(cls, category_dict):
 		new = cls(category_dict['id'], category_dict['parent_id'], category_dict['nodename'], \
@@ -88,6 +121,58 @@ class OctopartCategory(object):
 		self.ancestor_ids = ancestor_ids	# Sorted list of ancestor node ids (immediate parent first)
 		self.ancestors = ancestors	# Sorted list of category objects
 		self.num_parts = num_parts
+	
+	def equals_json(self, resource):
+		"""Checks the object for data equivalence to a JSON Category resource."""
+		
+		if isinstance(resource, DictType) and resource.get('__class__') == 'Category': 
+			if self.id != resource.get('id'):
+				return False
+			if self.parent_id != resource.get('parent_id'):
+				return False
+			if self.nodename != resource.get('nodename'):
+				return False
+			if sorted(self.images) != sorted(resource.get('images')):
+				return False
+			if sorted(self.children_ids) != sorted(resource.get('children_ids')):
+				return False
+			if sorted(self.ancestor_ids) != sorted(resource.get('ancestor_ids')):
+				return False
+			if set(self.ancestors) != set(resource.get('ancestors', [])):
+				return False
+			if self.num_parts != resource.get('num_parts'):
+				return False
+		else:
+			return False
+		return True
+	
+	def __eq__(self, c):
+		if isinstance(c, OctopartCategory):
+			try:
+				if self.id != c.id:
+					return False
+				if self.parent_id != c.parent_id:
+					return False
+				if self.nodename != c.nodename:
+					return False
+				if sorted(self.images != c.images):
+					return False
+				if sorted(self.children_ids) != sorted(c.children_ids):
+					return False
+				if sorted(self.ancestor_ids) != sorted(c.ancestor_ids):
+					return False
+				if set(self.ancestors) != set(c.ancestors)
+					return False
+				if self.num_parts != c.num_parts:
+					return False
+			except AttributeError:
+				return False
+		else:
+			return False
+		return True
+	
+	def __neq__(self, c):
+		return not self.__eq__(c)
 
 class OctopartPart(object):
 	
@@ -143,6 +228,100 @@ class OctopartPart(object):
 	
 	def get_unauthorized_offers(self):
 		return [o for o in self.offers if o['is_authorized'] is False]
+	
+	def equals_json(self, resource, hide_datasheets=False, hide_descriptions=False, hide_images=False, \
+				hide_offers=False, hide_unauthorized_offers=False, hide_specs=False):
+		"""Checks the object for data equivalence to a JSON Part resource."""
+		
+		if isinstance(resource, DictType) and resource.get('__class__') == 'Part': 
+			if self.uid != resource.get('uid'):
+				return False
+			if self.mpn != resource.get('mpn'):
+				return False
+			if self.manufacturer != resource.get('manufacturer'):
+				return False
+			if self.detail_url != resource.get('detail_url'):
+				return False
+			if self.avg_price != resource.get('avg_price'):
+				return False
+			if self.avg_avail != resource.get('avg_avail'):
+				return False
+			if self.market_status != resource.get('market_status'):
+				return False
+			if self.num_suppliers != resource.get('num_suppliers'):
+				return False
+			if self.num_authsuppliers != resource.get('num_authsuppliers'):
+				return False
+			if self.short_description != resource.get('short_description', ''):
+				return False
+			if sorted(self.category_ids) != sorted(resource.get('category_ids', [])):
+				return False
+			if hide_images is False and sorted(self.images) != sorted(resource.get('images', [])):
+				return False
+			if hide_datasheets is False and sorted(self.datasheets) != sorted(resource.get('datasheets', [])):
+				return False
+			if hide_descriptions is False and sorted(self.descriptions) != sorted(resource.get('descriptions', [])):
+				return False
+			if self.hyperlinks != resource.get('hyperlinks', {}):
+				return False
+			if hide_offers is False:
+				if hide_unauthorized_offers:
+					if sorted(self.get_unauthorized_offers()) != sorted(resource.get('offers', [])):
+						return False
+				else:
+					if sorted(self.offers) != sorted(resource.get('offers', [])):
+						return False
+			if hide_specs is False and sorted(self.specs) != sorted(resource.get('specs', [])):
+				return False
+		else:
+			return False
+		return True
+	
+	def __eq__(self, p):
+		if isinstance(p, OctopartPart):
+			try:
+				if self.uid != p.uid:
+					return False
+				if self.mpn != p.mpn:
+					return False
+				if self.manufacturer != p.manufacturer:
+					return False
+				if self.detail_url != p.detail_url:
+					return False
+				if self.avg_price != p.avg_price:
+					return False
+				if self.avg_avail != p.avg_avail:
+					return False
+				if self.market_status != p.market_status:
+					return False
+				if self.num_suppliers != p.num_suppliers:
+					return False
+				if self.num_authsuppliers != p.num_authsuppliers:
+					return False
+				if self.short_description != p.short_description:
+					return False
+				if self.category_ids != p.category_ids:
+					return False
+				if self.images != p.images:
+					return False
+				if self.datasheets != p.datasheets:
+					return False
+				if self.descriptions != p.descriptions:
+					return False
+				if self.hyperlinks != p.hyperlinks:
+					return False
+				if self.offers != p.offers:
+					return False
+				if self.specs != p.specs:
+					return False
+			except AttributeError:
+				return False
+		else:
+			return False
+		return True
+	
+	def __neq__(self, p):
+		return not self.__eq__(p)
 
 class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
@@ -158,6 +337,42 @@ class OctopartPartAttribute(object):
 		self.displayname = displayname
 		self.type = attribute_type
 		self.metadata = metadata
+	
+	def equals_json(self, resource):
+		"""Checks the object for data equivalence to a JSON PartAttribute resource."""
+		
+		if isinstance(resource, DictType) and resource.get('__class__') == 'PartAttribute': 
+			if self.fieldname != resource.get('fieldname'):
+				return False
+			if self.displayname != resource.get('displayname'):
+				return False
+			if self.type != resource.get('type'):
+				return False
+			if self.metadata != resource.get('metadata', {}):
+				return False
+		else:
+			return False
+		return True
+	
+	def __eq__(self, pa):
+		if isinstance(pa, OctopartPartAttribute):
+			try:
+				if self.fieldname != pa.fieldname:
+					return False
+				if self.displayname != pa.displayname:
+					return False
+				if self.type != pa.type:
+					return False
+				if self.metadata != pa.metadata:
+					return False
+			except AttributeError:
+				return False
+		else:
+			return False
+		return True
+	
+	def __neq__(self, pa):
+		return not self.__eq__(pa)
 
 class Octopart(object):
 	
