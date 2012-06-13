@@ -456,15 +456,14 @@ class Octopart(object):
 		if len(args_set) != len(args.keys()):
 			raise OctopartException(args, arg_types, arg_ranges, 3)
 	
-	def _get(self, method, args):
-		"""Makes a GET request with the given API method and arguments.
+	def _make_url(self, method, args):
+		"""Constructs the URL to pass to _get().
 		
 		@param method: String containing the method path, such as "parts/search".
 		@param args: Dictionary of arguments to pass to the API method.
-		@return: JSON response from server.
+		@return: Complete request URL string.
 		"""
 		
-		# Construct the request URL
 		req_url = Octopart.api_url + method
 		if self.apikey:
 			args['apikey'] = self.apikey
@@ -485,6 +484,15 @@ class Octopart(object):
 
 
 			req_url = req_url + '?' + '&'.join(arg_strings)
+		
+		return req_url
+	
+	def _get(self, req_url):
+		"""Makes a GET request with the given API method and arguments.
+		
+		@param req_url: Complete API request URL. 
+		@return: JSON response from server.
+		"""
 		
 		response = urllib2.urlopen(req_url).read()
 		json_obj = json.loads(unicode(response))
@@ -539,7 +547,7 @@ class Octopart(object):
 	def categories_get_args(self, id):
 		"""Validate and format arguments passed to categories_get().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -559,7 +567,7 @@ class Octopart(object):
 		method = 'categories/get'
 		args = self.categories_get_args(id)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				return None
@@ -575,7 +583,7 @@ class Octopart(object):
 	def categories_get_multi_args(self, ids):
 		"""Validate and format arguments passed to categories_get_multi().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -598,7 +606,7 @@ class Octopart(object):
 		method = 'categories/get_multi'
 		args = self.categories_get_multi_args(ids)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -615,7 +623,7 @@ class Octopart(object):
 	def categories_search_args(self, args):
 		"""Validate and format arguments passed to categories_search().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -634,7 +642,7 @@ class Octopart(object):
 		method = 'categories/search'
 		args = self.categories_search_args(kwargs)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -652,7 +660,7 @@ class Octopart(object):
 	def parts_get_args(self, uid, args):
 		"""Validate and format arguments passed to parts_get().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -679,7 +687,7 @@ class Octopart(object):
 		method = 'parts/get'
 		args = self.parts_get_args(uid, kwargs)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				return None
@@ -695,7 +703,7 @@ class Octopart(object):
 	def parts_get_multi_args(self, uids, args):
 		"""Validate and format arguments passed to parts_get_multi().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -725,7 +733,7 @@ class Octopart(object):
 		method = 'parts/get_multi'
 		args = self.parts_get_multi_args(uids, kwargs)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -742,7 +750,7 @@ class Octopart(object):
 	def parts_search_args(self, args):
 		"""Validate and format arguments passed to parts_search().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -823,7 +831,7 @@ class Octopart(object):
 		method = 'parts/search'
 		args = self.parts_search_args(kwargs)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -846,7 +854,7 @@ class Octopart(object):
 	def parts_suggest_args(self, q, args):
 		"""Validate and format arguments passed to parts_suggest().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -868,7 +876,7 @@ class Octopart(object):
 		method = 'parts/suggest'
 		args = self.parts_suggest_args(q, kwargs)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -884,7 +892,7 @@ class Octopart(object):
 	def parts_match_args(self, manufacturer_name, mpn):
 		"""Validate and format arguments passed to parts_match().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -904,7 +912,7 @@ class Octopart(object):
 		method = 'parts/match'
 		args = self.parts_match_args(manufacturer_name, mpn)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -920,7 +928,7 @@ class Octopart(object):
 	def partattributes_get_args(self, fieldname):
 		"""Validate and format arguments passed to partattributes_get().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -940,7 +948,7 @@ class Octopart(object):
 		method = 'partattributes/get'
 		args = self.partattributes_get_args(fieldname)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				return None
@@ -956,7 +964,7 @@ class Octopart(object):
 	def partattributes_get_multi_args(self, fieldnames):
 		"""Validate and format arguments passed to partattributes_get_multi().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -979,7 +987,7 @@ class Octopart(object):
 		method = 'partattributes/get_multi'
 		args = self.partattributes_get_multi_args(fieldnames)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -996,7 +1004,7 @@ class Octopart(object):
 	def bom_match_args(self, lines, args):
 		"""Validate and format arguments passed to bom_match().
 		
-		@return: Dictionary of valid arguments to pass to _get().
+		@return: Dictionary of valid arguments to pass to _make_url().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -1048,7 +1056,7 @@ class Octopart(object):
 		method = 'bom/match'
 		args = self.bom_match_args(lines, kwargs)
 		try:
-			json_obj = self._get(method, args)
+			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
