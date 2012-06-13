@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
 __contributors__ = []
 
@@ -463,13 +463,14 @@ class Octopart(object):
 				if type(args[key]) is not arg_types[key]:
 					raise OctopartException(args, arg_types, arg_ranges, 2)
 			if key in arg_ranges.keys():
-				if len(args[key]) < arg_ranges[key][0] or len(args[key]) > arg_ranges[key][1]:
+				if arg_types[key] in (IntType, LongType, FloatType):
+					if args[key] < arg_ranges[key][0] or args[key] > arg_ranges[key][1]:
+						raise OctopartException(args, arg_types, arg_ranges, 4)
+				elif len(args[key]) < arg_ranges[key][0] or len(args[key]) > arg_ranges[key][1]:
 					if arg_types[key] is StringType:
 						raise OctopartException(args, arg_types, arg_ranges, 5)
 					elif arg_types[key] is ListType:
 						raise OctopartException(args, arg_types, arg_ranges, 11)
-					elif arg_types[key] in (IntType, LongType, FloatType):
-						raise OctopartException(args, arg_types, arg_ranges, 4)
 		if len(args_set) != len(args.keys()):
 			raise OctopartException(args, arg_types, arg_ranges, 3)
 	
