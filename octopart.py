@@ -420,7 +420,7 @@ class Octopart(object):
 		self.callback = callback
 		self.pretty_print = pretty_print
 	
-	def __validate_args(self, args, arg_types, arg_ranges):
+	def _validate_args(self, args, arg_types, arg_ranges):
 		""" Checks method arguments for syntax errors.
 		
 		@param args: Dictionary of argumets to check
@@ -456,7 +456,7 @@ class Octopart(object):
 		if len(args_set) != len(args.keys()):
 			raise OctopartException(args, arg_types, arg_ranges, 3)
 	
-	def __get(self, method, args):
+	def _get(self, method, args):
 		"""Makes a GET request with the given API method and arguments.
 		
 		@param method: String containing the method path, such as "parts/search".
@@ -490,7 +490,7 @@ class Octopart(object):
 		json_obj = json.loads(unicode(response))
 		return json_obj
 	
-	def __translate_periods(self, args):
+	def _translate_periods(self, args):
 		"""Translates Python-friendly keyword arguments to valid Octopart API arguments.
 		
 		Several Octopart API arguments contain a period in their name.
@@ -525,11 +525,11 @@ class Octopart(object):
 		for key in args:
 			# Handle any list/dict arguments which may contain more arguments within 
 			if type(args[key]) is DictType:
-				args[key] = self.__translate_periods(args[key])
+				args[key] = self._translate_periods(args[key])
 			elif type(args[key]) is ListType:
 				for a in args[key]:
 					if type(a) is DictType:
-						a = self.__translate_periods(a)
+						a = self._translate_periods(a)
 						
 			if key in translation:
 				args[translation[key]] = args.pop(key)
@@ -539,14 +539,14 @@ class Octopart(object):
 	def categories_get_args(self, id):
 		"""Validate and format arguments passed to categories_get().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
 		arg_types = {'id': (IntType, LongType)}
 		arg_ranges = {}
 		args = {'id' : id}
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args
 
@@ -559,7 +559,7 @@ class Octopart(object):
 		method = 'categories/get'
 		args = self.categories_get_args(id)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				return None
@@ -575,14 +575,14 @@ class Octopart(object):
 	def categories_get_multi_args(self, ids):
 		"""Validate and format arguments passed to categories_get_multi().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
 		arg_types = {'ids': ListType}
 		arg_ranges = {}
 		args = {'ids' : ids}
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		for id in args['ids']:
 			if type(id) not in (IntType, LongType):
 				raise OctopartException(args, arg_types, arg_ranges, 2)
@@ -598,7 +598,7 @@ class Octopart(object):
 		method = 'categories/get_multi'
 		args = self.categories_get_multi_args(ids)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -615,13 +615,13 @@ class Octopart(object):
 	def categories_search_args(self, args):
 		"""Validate and format arguments passed to categories_search().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
 		arg_types = {'q': StringType, 'start' : IntType, 'limit' : IntType, 'ancestor_id' : IntType}
 		arg_ranges = {}
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args	
 	
@@ -634,7 +634,7 @@ class Octopart(object):
 		method = 'categories/search'
 		args = self.categories_search_args(kwargs)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -652,7 +652,7 @@ class Octopart(object):
 	def parts_get_args(self, uid, args):
 		"""Validate and format arguments passed to parts_get().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -664,9 +664,9 @@ class Octopart(object):
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
 		arg_ranges = {}
-		args = self.__translate_periods(args)
+		args = self._translate_periods(args)
 		args['uid'] = uid
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args
 	
@@ -679,7 +679,7 @@ class Octopart(object):
 		method = 'parts/get'
 		args = self.parts_get_args(uid, kwargs)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				return None
@@ -695,7 +695,7 @@ class Octopart(object):
 	def parts_get_multi_args(self, uids, args):
 		"""Validate and format arguments passed to parts_get_multi().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -707,12 +707,12 @@ class Octopart(object):
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
 		arg_ranges = {'uids': (0, 100)}
-		args = self.__translate_periods(args)
+		args = self._translate_periods(args)
 		args['uids'] = uids
 		for id in args['uids']:
 			if type(id) not in (IntType, LongType):
 				raise OctopartException(args, arg_types, arg_ranges, 2)
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args
 	
@@ -725,7 +725,7 @@ class Octopart(object):
 		method = 'parts/get_multi'
 		args = self.parts_get_multi_args(uids, kwargs)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -742,7 +742,7 @@ class Octopart(object):
 	def parts_search_args(self, args):
 		"""Validate and format arguments passed to parts_search().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -770,7 +770,7 @@ class Octopart(object):
 					'drilldown.facets.start' : (0, 1000), \
 					'drilldown.facets.limit' : (0, 100)}
 		
-		args = self.__translate_periods(args)
+		args = self._translate_periods(args)
 		# Method-specific checks not covered by validate_args:
 		for filter in args.get('filters', []):
 			if len(filter) != 2:
@@ -805,7 +805,7 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 10)
 		
 				
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args
 		
@@ -823,7 +823,7 @@ class Octopart(object):
 		method = 'parts/search'
 		args = self.parts_search_args(kwargs)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -846,14 +846,14 @@ class Octopart(object):
 	def parts_suggest_args(self, q, args):
 		"""Validate and format arguments passed to parts_suggest().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
 		arg_types = {'q': StringType, 'limit' : IntType}
 		arg_ranges = {'q': (2, float("inf")), 'limit' : (0, 10)}
 		args['q'] = q
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args
 		
@@ -868,7 +868,7 @@ class Octopart(object):
 		method = 'parts/suggest'
 		args = self.parts_suggest_args(q, kwargs)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -884,14 +884,14 @@ class Octopart(object):
 	def parts_match_args(self, manufacturer_name, mpn):
 		"""Validate and format arguments passed to parts_match().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
 		arg_types = {'manufacturer_name': StringType, 'mpn' : StringType}
 		arg_ranges = {}
 		args = {'manufacturer_name': manufacturer_name, 'mpn' : mpn}
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args
 	
@@ -904,7 +904,7 @@ class Octopart(object):
 		method = 'parts/match'
 		args = self.parts_match_args(manufacturer_name, mpn)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -920,14 +920,14 @@ class Octopart(object):
 	def partattributes_get_args(self, fieldname):
 		"""Validate and format arguments passed to partattributes_get().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
 		arg_types = {'fieldname': StringType}
 		arg_ranges = {}
 		args = {'fieldname': fieldname}
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args
 	
@@ -940,7 +940,7 @@ class Octopart(object):
 		method = 'partattributes/get'
 		args = self.partattributes_get_args(fieldname)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				return None
@@ -956,7 +956,7 @@ class Octopart(object):
 	def partattributes_get_multi_args(self, fieldnames):
 		"""Validate and format arguments passed to partattributes_get_multi().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -966,7 +966,7 @@ class Octopart(object):
 		for name in args['fieldnames']:
 			if isinstance(name, basestring) is False:
 				raise OctopartException(args, arg_types, arg_ranges, 2)
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args
 	
@@ -979,7 +979,7 @@ class Octopart(object):
 		method = 'partattributes/get_multi'
 		args = self.partattributes_get_multi_args(fieldnames)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
@@ -996,7 +996,7 @@ class Octopart(object):
 	def bom_match_args(self, lines, args):
 		"""Validate and format arguments passed to bom_match().
 		
-		@return: Dictionary of valid arguments to pass to __get().
+		@return: Dictionary of valid arguments to pass to _get().
 		@raise OctopartException: Raised if invalid argument syntax is passed in.
 		"""
 		
@@ -1009,7 +1009,7 @@ class Octopart(object):
 					'optimize.hide_hide_unauthorized_offers' : BooleanType, \
 					'optimize.hide_specs' : BooleanType}
 		arg_ranges = {}
-		args = self.__translate_periods(args)
+		args = self._translate_periods(args)
 		args['lines'] = lines
 		# DictType arguments need to be validated just like the normal args dict
 		lines_required_args = frozenset(('reference',))
@@ -1024,7 +1024,7 @@ class Octopart(object):
 					'reference' : StringType}
 		lines_arg_ranges = {'limit' : range(21)}
 		for line in lines:
-			self.__validate_args(line, lines_arg_types, lines_arg_ranges)
+			self._validate_args(line, lines_arg_types, lines_arg_ranges)
 			# Method-specific checks not covered by validate_args:
 			if lines_required_args.issubset(set(line.keys())) is False:
 				raise OctopartException(line, lines_arg_types, lines_arg_ranges, 0)
@@ -1032,7 +1032,7 @@ class Octopart(object):
 				raise OctopartException(line, lines_arg_types, lines_arg_ranges, 6)
 
 		# Now check the primary args dict as normal
-		self.__validate_args(args, arg_types, arg_ranges)
+		self._validate_args(args, arg_types, arg_ranges)
 		
 		return args
 	
@@ -1048,7 +1048,7 @@ class Octopart(object):
 		method = 'bom/match'
 		args = self.bom_match_args(lines, kwargs)
 		try:
-			json_obj = self.__get(method, args)
+			json_obj = self._get(method, args)
 		except urllib2.HTTPError as e:
 			if e.code == 404:
 				raise OctopartException(args, arg_types, arg_ranges, 7)
