@@ -103,7 +103,7 @@ class OctopartBrand(object):
 			return False
 		return True
 	
-	def __neq__(self, b):
+	def __ne__(self, b):
 		return not self.__eq__(b)
 
 class OctopartCategory(object):
@@ -178,7 +178,7 @@ class OctopartCategory(object):
 			return False
 		return True
 	
-	def __neq__(self, c):
+	def __ne__(self, c):
 		return not self.__eq__(c)
 
 class OctopartPart(object):
@@ -331,7 +331,7 @@ class OctopartPart(object):
 			return False
 		return True
 	
-	def __neq__(self, p):
+	def __ne__(self, p):
 		return not self.__eq__(p)
 
 class OctopartPartAttribute(object):
@@ -386,7 +386,7 @@ class OctopartPartAttribute(object):
 			return False
 		return True
 	
-	def __neq__(self, pa):
+	def __ne__(self, pa):
 		return not self.__eq__(pa)
 
 class Octopart(object):
