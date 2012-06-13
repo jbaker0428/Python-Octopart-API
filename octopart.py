@@ -66,9 +66,13 @@ class OctopartBrand(object):
 		return new
 	
 	def __init__(self, id, dispname, homepage):
-		self.id = id
+		self._id = id
 		self.displayname = dispname
 		self.homepage_url = homepage
+	
+	@property
+	def id(self):
+		return self._id
 	
 	def equals_json(self, resource):
 		"""Checks the object for data equivalence to a JSON Brand resource."""
@@ -112,7 +116,7 @@ class OctopartCategory(object):
 		return new
 	
 	def __init__(self, id, parent_id, nodename, images, children_ids, ancestor_ids, ancestors, num_parts):
-		self.id = id
+		self._id = id
 		self.parent_id = parent_id
 		self.nodename = nodename
 		self.images = images	# List of dicts of URLs
@@ -120,6 +124,10 @@ class OctopartCategory(object):
 		self.ancestor_ids = ancestor_ids	# Sorted list of ancestor node ids (immediate parent first)
 		self.ancestors = ancestors	# Sorted list of category objects
 		self.num_parts = num_parts
+	
+	@property
+	def id(self):
+		return self._id
 	
 	def equals_json(self, resource):
 		"""Checks the object for data equivalence to a JSON Category resource."""
@@ -204,7 +212,7 @@ class OctopartPart(object):
 			if type(spec['attribute']) is DictType:
 				spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
 		
-		self.uid = uid
+		self._uid = uid
 		self.mpn = mpn
 		self.manufacturer = manufacturer
 		self.detail_url = detail_url
@@ -221,6 +229,10 @@ class OctopartPart(object):
 		self.hyperlinks = kwargs.get('hyperlinks', {})
 		self.offers = kwargs.get('offers', [])
 		self.specs = kwargs.get('specs', [])
+	
+	@property
+	def uid(self):
+		return self._uid
 	
 	def get_authorized_offers(self):
 		return [o for o in self.offers if o['is_authorized'] is True]
@@ -332,10 +344,14 @@ class OctopartPartAttribute(object):
 		return new
 	
 	def __init__(self, fieldname, displayname, attribute_type, metadata):
-		self.fieldname = fieldname
+		self._fieldname = fieldname
 		self.displayname = displayname
 		self.type = attribute_type
 		self.metadata = metadata
+	
+	@property
+	def fieldname(self):
+		return self._fieldname
 	
 	def equals_json(self, resource):
 		"""Checks the object for data equivalence to a JSON PartAttribute resource."""
