@@ -108,6 +108,9 @@ class OctopartBrand(object):
 	
 	def __hash__(self):
 		return (hash(self.__class__), hash(self.id))
+	
+	def __str__(self):
+		return ''.join(('Brand ', self.id, ': ', self.displayname, ' (', self.homepage_url, ')'))
 
 class OctopartCategory(object):
 	
@@ -186,6 +189,9 @@ class OctopartCategory(object):
 	
 	def __hash__(self):
 		return (hash(self.__class__), hash(self.id))
+	
+	def __str__(self):
+		return ''.join(('Category ', self.id, ': ', self.nodename))
 
 class OctopartPart(object):
 	
@@ -346,6 +352,9 @@ class OctopartPart(object):
 	
 	def __hash__(self):
 		return (hash(self.__class__), hash(self.uid), hash(self.mpn))
+	
+	def __str__(self):
+		return ''.join(('Part ', str(self.uid), ': ', self.manufacturer, ' ', self.mpn))
 
 class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
@@ -404,6 +413,14 @@ class OctopartPartAttribute(object):
 	
 	def __hash__(self):
 		return (hash(self.__class__), hash(self.fieldname))
+	
+	def __str__(self):
+		if self.type == 'number':
+			return ''.join((self.displayname, 'attribute: ', self.metadata['datatype'], ' (', self.metadata['unit']['name'], ')'))
+		elif self.type == 'text':
+			return ''.join((self.displayname, 'attribute: ', self.type))
+		else:	# Note: 'else' is not a valid state in the API resource definition
+			return self.displayname
 
 class Octopart(object):
 	
