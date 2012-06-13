@@ -52,9 +52,9 @@ class OctopartException(Exception):
 		self.code = error_code
 		
 	def __str__(self):
-		args = '\nPassed arguments: ' + str(self.arguments)
-		argt = '\nArgument types: ' + str(self.arg_types)
-		argr = '\nArgument ranges: ' + str(self.arg_ranges)
+		args = ' '.join(('\nPassed arguments:', str(self.arguments)))
+		argt = ' '.join(('\nArgument types:', str(self.arg_types)))
+		argr = ' '.join(('\nArgument ranges:', str(self.arg_ranges)))
 		string = OctopartException.errors[self.code] + args + argt + argr
 		return string
 
@@ -480,11 +480,10 @@ class Octopart(object):
 					v = json.dumps(val, separators=(',',':'))
 				else:
 					v = val
-				arg_strings.append(arg + '=' + str(v))
-
-
-			req_url = req_url + '?' + '&'.join(arg_strings)
-		
+				arg_strings.append('='.join((arg, str(v))))
+			
+			req_url = '?'.join((req_url, '&'.join(arg_strings)))
+				
 		return req_url
 	
 	def _get(self, req_url):
