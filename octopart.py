@@ -59,7 +59,6 @@ class OctopartException(Exception):
 		return string
 
 class OctopartBrand(object):
-	__slots__ = ["id", "displayname", "homepage_url"]
 	
 	@classmethod
 	def new_from_dict(cls, brand_dict):
