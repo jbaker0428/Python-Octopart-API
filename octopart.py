@@ -137,6 +137,12 @@ class OctopartPart(object):
 		self.hyperlinks = kwargs.get('hyperlinks', {})
 		self.offers = kwargs.get('offers', [])
 		self.specs = kwargs.get('specs', [])
+	
+	def get_authorized_offers(self):
+		return [o for o in self.offers if o['is_authorized'] is True]
+	
+	def get_unauthorized_offers(self):
+		return [o for o in self.offers if o['is_authorized'] is False]
 
 class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
