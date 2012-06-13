@@ -15,7 +15,9 @@ if os.path.exists("build"):
 	s = os.path.join(os.getcwd(), s)
 	sys.path.insert(0,s)
 
+import octopart
 from octopart import *
+print octopart
 
 def get(req_url):
 	"""Return a JSON dictionary from a pre-formed request URL."""
