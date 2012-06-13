@@ -213,7 +213,7 @@ class OctopartPart(object):
 				spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
 		
 		self._uid = uid
-		self.mpn = mpn
+		self._mpn = mpn
 		self.manufacturer = manufacturer
 		self.detail_url = detail_url
 		self.avg_price = kwargs.get('avg_price')
@@ -233,6 +233,10 @@ class OctopartPart(object):
 	@property
 	def uid(self):
 		return self._uid
+	
+	@property
+	def mpn(self):
+		return self._mpn
 	
 	def get_authorized_offers(self):
 		return [o for o in self.offers if o['is_authorized'] is True]
