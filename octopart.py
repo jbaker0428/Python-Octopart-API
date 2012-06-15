@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
 __contributors__ = []
 
@@ -603,7 +603,7 @@ class Octopart(object):
 			
 		return args
 	
-	def categories_get_args(self, id):
+	def _categories_get_args(self, id):
 		"""Validate and format arguments passed to categories_get().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -627,7 +627,7 @@ class Octopart(object):
 		"""
 		
 		method = 'categories/get'
-		args = self.categories_get_args(id)
+		args = self._categories_get_args(id)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -642,7 +642,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def categories_get_multi_args(self, ids):
+	def _categories_get_multi_args(self, ids):
 		"""Validate and format arguments passed to categories_get_multi().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -669,7 +669,7 @@ class Octopart(object):
 		"""
 		
 		method = 'categories/get_multi'
-		args = self.categories_get_multi_args(ids)
+		args = self._categories_get_multi_args(ids)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -684,7 +684,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def categories_search_args(self, args):
+	def _categories_search_args(self, args):
 		"""Validate and format arguments passed to categories_search().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -707,7 +707,7 @@ class Octopart(object):
 		"""
 		
 		method = 'categories/search'
-		args = self.categories_search_args(kwargs)
+		args = self._categories_search_args(kwargs)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -723,7 +723,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def parts_get_args(self, uid, args):
+	def _parts_get_args(self, uid, args):
 		"""Validate and format arguments passed to parts_get().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -754,7 +754,7 @@ class Octopart(object):
 		"""
 		
 		method = 'parts/get'
-		args = self.parts_get_args(uid, kwargs)
+		args = self._parts_get_args(uid, kwargs)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -769,7 +769,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def parts_get_multi_args(self, uids, args):
+	def _parts_get_multi_args(self, uids, args):
 		"""Validate and format arguments passed to parts_get_multi().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -803,7 +803,7 @@ class Octopart(object):
 		"""
 		
 		method = 'parts/get_multi'
-		args = self.parts_get_multi_args(uids, kwargs)
+		args = self._parts_get_multi_args(uids, kwargs)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -818,7 +818,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def parts_search_args(self, args):
+	def _parts_search_args(self, args):
 		"""Validate and format arguments passed to parts_search().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -899,7 +899,7 @@ class Octopart(object):
 		"""
 		
 		method = 'parts/search'
-		args = self.parts_search_args(kwargs)
+		args = self._parts_search_args(kwargs)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -915,7 +915,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def parts_suggest_args(self, q, args):
+	def _parts_suggest_args(self, q, args):
 		"""Validate and format arguments passed to parts_suggest().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -941,7 +941,7 @@ class Octopart(object):
 		"""
 		
 		method = 'parts/suggest'
-		args = self.parts_suggest_args(q, kwargs)
+		args = self._parts_suggest_args(q, kwargs)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -956,7 +956,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def parts_match_args(self, manufacturer_name, mpn):
+	def _parts_match_args(self, manufacturer_name, mpn):
 		"""Validate and format arguments passed to parts_match().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -978,7 +978,7 @@ class Octopart(object):
 		"""
 		
 		method = 'parts/match'
-		args = self.parts_match_args(manufacturer_name, mpn)
+		args = self._parts_match_args(manufacturer_name, mpn)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -993,7 +993,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def partattributes_get_args(self, fieldname):
+	def _partattributes_get_args(self, fieldname):
 		"""Validate and format arguments passed to partattributes_get().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -1017,7 +1017,7 @@ class Octopart(object):
 		"""
 		
 		method = 'partattributes/get'
-		args = self.partattributes_get_args(fieldname)
+		args = self._partattributes_get_args(fieldname)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -1032,7 +1032,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def partattributes_get_multi_args(self, fieldnames):
+	def _partattributes_get_multi_args(self, fieldnames):
 		"""Validate and format arguments passed to partattributes_get_multi().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -1059,7 +1059,7 @@ class Octopart(object):
 		"""
 		
 		method = 'partattributes/get_multi'
-		args = self.partattributes_get_multi_args(fieldnames)
+		args = self._partattributes_get_multi_args(fieldnames)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
@@ -1074,7 +1074,7 @@ class Octopart(object):
 		else:
 			return None
 	
-	def bom_match_args(self, lines, args):
+	def _bom_match_args(self, lines, args):
 		"""Validate and format arguments passed to bom_match().
 		
 		@return: Dictionary of valid arguments to pass to _make_url().
@@ -1130,7 +1130,7 @@ class Octopart(object):
 		"""
 		
 		method = 'bom/match'
-		args = self.bom_match_args(lines, kwargs)
+		args = self._bom_match_args(lines, kwargs)
 		try:
 			json_obj = self._get(self._make_url(method, args))
 		except urllib2.HTTPError as e:
