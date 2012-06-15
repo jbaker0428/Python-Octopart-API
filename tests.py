@@ -180,6 +180,12 @@ class DataEquivalenceTest(unittest.TestCase):
 			assert truth.count(True) == 1
 		print 'test_parts_search OK'
 	
+	def test_parts_suggest(self):
+		json_obj, results = api.parts_suggest(q='sn74f', limit=3)
+		json_eq(json_obj, parts_suggest_ref)
+		assert json_obj['results'] == results
+		print 'test_parts_suggest OK'
+	
 	def tearDown(self):
 		unittest.TestCase.tearDown(self)
 
