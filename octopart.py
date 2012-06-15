@@ -110,7 +110,7 @@ class OctopartBrand(object):
 		return (hash(self.__class__), hash(self.id))
 	
 	def __str__(self):
-		return ''.join(('Brand ', self.id, ': ', self.displayname, ' (', self.homepage_url, ')'))
+		return ''.join(('Brand ', str(self.id), ': ', self.displayname, ' (', self.homepage_url, ')'))
 
 class OctopartCategory(object):
 	
