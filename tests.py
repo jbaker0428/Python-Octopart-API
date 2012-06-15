@@ -122,9 +122,6 @@ class ArgumentValidationTest(unittest.TestCase):
 
 class DataEquivalenceTest(unittest.TestCase):
 	
-	def setUp(self):
-		unittest.TestCase.setUp(self)
-	
 	def test_categories_get(self):
 		json_obj, category = api.categories_get(4174)
 		assert json_obj is not None
@@ -230,9 +227,6 @@ class DataEquivalenceTest(unittest.TestCase):
 				assert part.equals_json(json_obj['results'][results.index(result)]['items'][result['items'].index(part)])
 		print 'test_bom_match OK'
 	
-	def tearDown(self):
-		unittest.TestCase.tearDown(self)
-
 if __name__ == '__main__':
 	unittest.main()
 
