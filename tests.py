@@ -110,7 +110,7 @@ parts_suggest_ref = get('http://octopart.com/api/v2/parts/suggest?q=sn74f&limit=
 parts_match_ref = get('http://octopart.com/api/v2/parts/match?manufacturer_name=texas+instruments&mpn=SN74LS240N&apikey=92bdca1b')
 partattributes_get_ref = get('http://octopart.com/api/v2/partattributes/get?fieldname=capacitance&apikey=92bdca1b')
 partattributes_get_multi_ref = get('http://octopart.com/api/v2/partattributes/get_multi?fieldnames=["capacitance","resistance"]&apikey=92bdca1b')
-bom_match_ref = get('http://octopart.com/api/v2/bom/match?lines=%5B%7B%22mpn%22%3A+%22SN74LS240N%22%7D%5D&apikey=92bdca1b')
+bom_match_ref = get('http://octopart.com/api/v2/bom/match?lines=%5B%7B%22mpn%22%3A+%22SN74LS240N%22%2C+%22manufacturer%22%3A+%22Texas+Instruments%22%7D%5D&apikey=92bdca1b')
 
 class ArgumentValidationTest(unittest.TestCase):
 	
@@ -214,6 +214,21 @@ class DataEquivalenceTest(unittest.TestCase):
 			assert isinstance(attrib, OctopartPartAttribute)
 			assert True in [attrib.equals_json(a) for a in json_obj]
 		print 'test_partattributes_get_multi OK'
+		
+	def test_bom_match(self):
+		json_obj, results = api.bom_match(lines=[{'mpn':'SN74LS240N', 'manufacturer':'Texas Instruments'}])
+		assert json_obj is not None
+		json_eq(json_obj, bom_match_ref)
+		
+		for result in results:
+			if result.get('hits') is not None:	# Not in API docs, but exists
+				assert result['hits'] == len(result['items'])
+			assert result['status'] == json_obj['results'][results.index(result)]['status']
+			assert result['reference'] == json_obj['results'][results.index(result)]['reference']
+			for part in result['items']:
+				assert isinstance(part, OctopartPart)
+				assert part.equals_json(json_obj['results'][results.index(result)]['items'][result['items'].index(part)])
+		print 'test_bom_match OK'
 	
 	def tearDown(self):
 		unittest.TestCase.tearDown(self)
