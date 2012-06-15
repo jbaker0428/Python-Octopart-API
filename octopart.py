@@ -260,6 +260,24 @@ class OctopartPart(object):
 				hide_offers=False, hide_unauthorized_offers=False, hide_specs=False):
 		"""Checks the object for data equivalence to a JSON Part resource."""
 		
+		def compare_offers(class_offer, json_offer):
+			"""Compares two offers.
+			
+			@param class_offer: An offer from an OctopartPart instance.
+			@param json_offer: An offer from a JSON Part resource.
+			"""
+			
+			class_attribs = (class_offer['sku'], class_offer['avail'], class_offer['prices'], \
+							class_offer['is_authorized'], class_offer.get('clickthrough_url'), \
+							class_offer.get('buynow_url'), class_offer.get('sendrfq_url'))
+			json_attribs = (json_offer['sku'], json_offer['avail'], json_offer['prices'], \
+							json_offer['is_authorized'], json_offer.get('clickthrough_url'), \
+							json_offer.get('buynow_url'), json_offer.get('sendrfq_url'))
+			if class_attribs != json_attribs:
+				return False
+			if not class_offer['supplier'].equals_json(json_offer['supplier']):
+				return False
+			return True
 		if isinstance(resource, DictType) and resource.get('__class__') == 'Part': 
 			if self.uid != resource.get('uid'):
 				return False
@@ -292,11 +310,14 @@ class OctopartPart(object):
 			if self.hyperlinks != resource.get('hyperlinks', {}):
 				return False
 			if hide_offers is False:
+				checked_offers = []
 				if hide_unauthorized_offers:
-					if sorted(self.get_unauthorized_offers()) != sorted(resource.get('offers', [])):
-						return False
+					checked_offers = sorted(self.get_unauthorized_offers())
 				else:
-					if sorted(self.offers) != sorted(resource.get('offers', [])):
+					checked_offers = sorted(self.offers)
+				for offer in checked_offers:
+					truth = [compare_offers(offer, other) for other in sorted(resource.get('offers', []))]
+					if True not in truth:
 						return False
 			if hide_specs is False and sorted(self.specs) != sorted(resource.get('specs', [])):
 				return False
