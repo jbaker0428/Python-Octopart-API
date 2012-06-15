@@ -18,10 +18,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.4.2"
+__version__ = "0.5.0"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
 __contributors__ = []
 
+import copy
 import urllib2
 import json
 from types import *
@@ -116,9 +117,10 @@ class OctopartCategory(object):
 	
 	@classmethod
 	def new_from_dict(cls, category_dict):
-		new = cls(category_dict['id'], category_dict['parent_id'], category_dict['nodename'], \
-							category_dict['images'], category_dict['children_ids'], category_dict['ancestor_ids'], \
-							category_dict.get('ancestors', []), category_dict['num_parts'])
+		new_dict = copy.deepcopy(category_dict)
+		new = cls(new_dict['id'], new_dict['parent_id'], new_dict['nodename'], \
+							new_dict['images'], new_dict['children_ids'], new_dict['ancestor_ids'], \
+							new_dict.get('ancestors', []), new_dict['num_parts'])
 		return new
 	
 	def __init__(self, id, parent_id, nodename, images, children_ids, ancestor_ids, ancestors, num_parts):
@@ -199,18 +201,20 @@ class OctopartPart(object):
 	def new_from_dict(cls, part_dict):
 		"""Constructor for use with JSON resource dictionaries."""
 		
-		uid = part_dict.pop('uid')
-		mpn = part_dict.pop('mpn')
-		manufacturer = part_dict.pop('manufacturer')
-		detail_url = part_dict.pop('detail_url')
-		return cls(uid, mpn, manufacturer, detail_url, **part_dict)
+		copied_dict = part_dict.copy()
+		uid = copied_dict.pop('uid')
+		mpn = copied_dict.pop('mpn')
+		manufacturer = copied_dict.pop('manufacturer')
+		detail_url = copied_dict.pop('detail_url')
+		return cls(uid, mpn, manufacturer, detail_url, **copied_dict)
 	
 	def __init__(self, uid, mpn, manufacturer, detail_url, **kwargs):
 		# If class data is in dictionary format, convert everything to class instances 
 		# Otherwise, assume it is already in class format and do nothing
+		args = copy.deepcopy(kwargs)
 		if type(manufacturer) is DictType:
-			manufacturer = OctopartBrand.new_from_dict(manufacturer)
-		for offer in kwargs.get('offers', []):
+			manufacturer = OctopartBrand.new_from_dict(copy.deepcopy(manufacturer))
+		for offer in args.get('offers', []):
 			if type(offer['supplier']) is DictType:
 				offer['supplier'] = OctopartBrand.new_from_dict(offer['supplier'])
 			# Convert ISO 8601 datetime strings to datetime objects
@@ -220,7 +224,7 @@ class OctopartPart(object):
 					offer['update_ts'] = offer['update_ts'][0:-1]
 				offer['update_ts'] = datetime.datetime.strptime(offer['update_ts'], '%Y-%m-%dT%H:%M:%S')
 			
-		for spec in kwargs.get('specs', []):
+		for spec in args.get('specs', []):
 			if type(spec['attribute']) is DictType:
 				spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
 		
@@ -228,19 +232,19 @@ class OctopartPart(object):
 		self._mpn = mpn
 		self.manufacturer = manufacturer
 		self.detail_url = detail_url
-		self.avg_price = kwargs.get('avg_price')
-		self.avg_avail = kwargs.get('avg_avail')
-		self.market_status = kwargs.get('market_status')
-		self.num_suppliers = kwargs.get('num_suppliers')
-		self.num_authsuppliers = kwargs.get('num_authsuppliers')
-		self.short_description = kwargs.get('short_description', '')
-		self.category_ids = kwargs.get('category_ids', [])
-		self.images = kwargs.get('images', [])
-		self.datasheets = kwargs.get('datasheets', [])
-		self.descriptions = kwargs.get('descriptions', [])
-		self.hyperlinks = kwargs.get('hyperlinks', {})
-		self.offers = kwargs.get('offers', [])
-		self.specs = kwargs.get('specs', [])
+		self.avg_price = args.get('avg_price')
+		self.avg_avail = args.get('avg_avail')
+		self.market_status = args.get('market_status')
+		self.num_suppliers = args.get('num_suppliers')
+		self.num_authsuppliers = args.get('num_authsuppliers')
+		self.short_description = args.get('short_description', '')
+		self.category_ids = args.get('category_ids', [])
+		self.images = args.get('images', [])
+		self.datasheets = args.get('datasheets', [])
+		self.descriptions = args.get('descriptions', [])
+		self.hyperlinks = args.get('hyperlinks', {})
+		self.offers = args.get('offers', [])
+		self.specs = args.get('specs', [])
 	
 	@property
 	def uid(self):
@@ -616,7 +620,10 @@ class Octopart(object):
 	def categories_get(self, id):
 		"""Fetch a category object by its id. 
 		
-		@return: An OctopartCategory object or None.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-An OctopartCategory object.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'categories/get'
@@ -631,7 +638,7 @@ class Octopart(object):
 			else:
 				raise e
 		if json_obj:
-			return OctopartCategory.new_from_dict(json_obj)
+			return json_obj, OctopartCategory.new_from_dict(json_obj)
 		else:
 			return None
 	
@@ -655,7 +662,10 @@ class Octopart(object):
 	def categories_get_multi(self, ids):
 		"""Fetch multiple category objects by their ids. 
 		
-		@return: A list of OctopartCategory objects.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-A list of OctopartCategory objects.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'categories/get_multi'
@@ -669,11 +679,10 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		categories = []
 		if json_obj:
-			for category in json_obj:
-				categories.append(OctopartCategory.new_from_dict(category))
-		return categories
+			return json_obj, [OctopartCategory.new_from_dict(category) for category in json_obj]
+		else:
+			return None
 	
 	def categories_search_args(self, args):
 		"""Validate and format arguments passed to categories_search().
@@ -691,7 +700,10 @@ class Octopart(object):
 	def categories_search(self, **kwargs):
 		"""Execute search over all result objects. 
 		
-		@return: A list of [OctopartCategory, highlight_text] pairs.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-A list of (OctopartCategory, highlight_text) pairs for each result.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'categories/search'
@@ -705,12 +717,11 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		categories = []
 		if json_obj:
-			for result in json_obj['results']:
-				new_category = OctopartCategory.new_from_dict(result['item'])
-				categories.append([new_category, result['highlight']])
-		return categories
+			results = [(OctopartCategory.new_from_dict(result['item']), result['highlight']) for result in json_obj['results']]
+			return json_obj, results
+		else:
+			return None
 	
 	def parts_get_args(self, uid, args):
 		"""Validate and format arguments passed to parts_get().
@@ -736,7 +747,10 @@ class Octopart(object):
 	def parts_get(self, uid, **kwargs):
 		"""Fetch a part object by its id.
 		
-		@return: An OctopartPart object.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-An OctopartPart object.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'parts/get'
@@ -751,7 +765,7 @@ class Octopart(object):
 			else:
 				raise e
 		if json_obj:
-			return OctopartPart.new_from_dict(json_obj)
+			return json_obj, OctopartPart.new_from_dict(json_obj)
 		else:
 			return None
 	
@@ -782,7 +796,10 @@ class Octopart(object):
 	def parts_get_multi(self, uids, **kwargs):
 		"""Fetch multiple part objects by their ids.
 		
-		@return: A list of OctopartPart objects.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-A list of OctopartPart objects.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'parts/get_multi'
@@ -796,11 +813,10 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		parts = []
 		if json_obj:
-			for part in json_obj:
-				parts.append(OctopartPart.new_from_dict(part))
-		return parts
+			return json_obj, [OctopartPart.new_from_dict(part) for part in json_obj]
+		else:
+			return None
 	
 	def parts_search_args(self, args):
 		"""Validate and format arguments passed to parts_search().
@@ -876,11 +892,10 @@ class Octopart(object):
 	def parts_search(self, **kwargs):
 		"""Execute a search over all result objects.
 		
-		@return: A tuple pair containing:
-			-A list of [OctopartPart, highlight_text] pairs. 
-			-A list of drilldown result dictionaries. 
-		If {drilldown.include : True} is not passed in the args dictionary, 
-		the drilldown list will be empty.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-A list of (OctopartPart, highlight_text) pairs for each result.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'parts/search'
@@ -894,17 +909,11 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		parts = []
-		drilldown = []
 		if json_obj:
-			for result in json_obj['results']:
-				new_part = OctopartPart.new_from_dict(result['item'])
-				parts.append([new_part, result['highlight']])
-			if args.get('drilldown.include'):
-				for drill in json_obj['drilldown']:
-					drill['attribute'] = OctopartPartAttribute.new_from_dict(drill['attribute'])
-					drilldown.append(drill)
-		return (parts, drilldown)
+			results = [tuple((OctopartPart.new_from_dict(result['item']), result['highlight'])) for result in json_obj['results']]
+			return json_obj, results
+		else:
+			return None
 	
 	def parts_suggest_args(self, q, args):
 		"""Validate and format arguments passed to parts_suggest().
@@ -925,7 +934,10 @@ class Octopart(object):
 		"""Suggest a part search query string.
 		
 		Optimized for speed (useful for auto-complete features).
-		@return: A list of manufacturer part number strings.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-A list of manufacturer part number strings.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'parts/suggest'
@@ -940,7 +952,7 @@ class Octopart(object):
 			else:
 				raise e
 		if json_obj:
-			return json_obj['results']
+			return json_obj, json_obj['results']
 		else:
 			return None
 	
@@ -962,6 +974,7 @@ class Octopart(object):
 		"""Match (manufacturer name, mpn) to part uid. 
 		
 		@return: a list of (part uid, manufacturer displayname, mpn) tuples.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'parts/match'
@@ -995,9 +1008,12 @@ class Octopart(object):
 		return args
 	
 	def partattributes_get(self, fieldname):
-		"""Fetch a partattribute object by its fieldname.
+		"""Fetch a PartAttribute object by its fieldname.
 		
-		@return: An OctopartPartAttribute object.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-An OctopartPartAttribute object.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'partattributes/get'
@@ -1012,7 +1028,7 @@ class Octopart(object):
 			else:
 				raise e
 		if json_obj:
-			return OctopartPartAttribute.new_from_dict(json_obj)
+			return json_obj, OctopartPart.new_from_dict(json_obj)
 		else:
 			return None
 	
@@ -1034,9 +1050,12 @@ class Octopart(object):
 		return args
 	
 	def partattributes_get_multi(self, fieldnames):
-		"""Fetch multiple partattributes objects by their fieldnames.
+		"""Fetch multiple PartAttribute objects by their fieldnames.
 		
-		@return: A list of OctopartPartAttribute objects.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-A list of OctopartPartAttribute objects.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'partattributes/get_multi'
@@ -1050,11 +1069,10 @@ class Octopart(object):
 				raise OctopartException(args, arg_types, arg_ranges, 8)
 			else:
 				raise e
-		attributes = []
 		if json_obj:
-			for attribute in json_obj:
-				attributes.append(OctopartPartAttribute.new_from_dict(attribute))
-		return attributes
+			return json_obj, [OctopartPartAttribute.new_from_dict(attrib) for attrib in json_obj]
+		else:
+			return None
 	
 	def bom_match_args(self, lines, args):
 		"""Validate and format arguments passed to bom_match().
@@ -1102,10 +1120,13 @@ class Octopart(object):
 	def bom_match(self, lines, **kwargs):
 		"""Match a list of part numbers to Octopart part objects.
 		 
-		@return: A list of 3-item dicts containing:
-			-A list of OctopartParts.
-			-A reference string.
-			-A status string.
+		@return: A pair containing:
+			-The raw JSON result dictionary. 
+			-A list of 3-item dicts containing:
+				-A list of OctopartParts.
+				-A reference string.
+				-A status string.
+		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
 		method = 'bom/match'
@@ -1122,9 +1143,10 @@ class Octopart(object):
 		results = []
 		if json_obj:
 			for result in json_obj['results']:
-				items = []
-				for item in result['items']:
-					items.append(OctopartPart.new_from_dict(part))
+				items = [OctopartPart.new_from_dict(item) for item in result['items']]
 				results.append({'items' : items, 'reference' : result.get('reference', ''), 'status' : result['status']})
 		
-		return results
+			return json_obj, results
+		else:
+			return None
+
