@@ -191,7 +191,7 @@ class OctopartCategory(object):
 		return (hash(self.__class__), hash(self.id))
 	
 	def __str__(self):
-		return ''.join(('Category ', self.id, ': ', self.nodename))
+		return ''.join(('Category ', str(self.id), ': ', self.nodename))
 
 class OctopartPart(object):
 	
