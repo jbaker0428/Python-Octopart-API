@@ -110,7 +110,7 @@ parts_suggest_ref = get('http://octopart.com/api/v2/parts/suggest?q=sn74f&limit=
 parts_match_ref = get('http://octopart.com/api/v2/parts/match?manufacturer_name=texas+instruments&mpn=SN74LS240N&apikey=92bdca1b')
 partattributes_get_ref = get('http://octopart.com/api/v2/partattributes/get?fieldname=capacitance&apikey=92bdca1b')
 partattributes_get_multi_ref = get('http://octopart.com/api/v2/partattributes/get_multi?fieldnames=["capacitance","resistance"]&apikey=92bdca1b')
-bom_match_ref = get('http://octopart.com/api/v2/bom/match?lines=%5B%7B%22mpn%22%3A+%22SN74LS240N%22%7D%5D&pretty_print=true&apikey=92bdca1b')
+bom_match_ref = get('http://octopart.com/api/v2/bom/match?lines=%5B%7B%22mpn%22%3A+%22SN74LS240N%22%7D%5D&apikey=92bdca1b')
 
 class ArgumentValidationTest(unittest.TestCase):
 	
