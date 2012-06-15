@@ -392,7 +392,7 @@ class OctopartPart(object):
 		return (hash(self.__class__), hash(self.uid), hash(self.mpn))
 	
 	def __str__(self):
-		return ''.join(('Part ', str(self.uid), ': ', self.manufacturer, ' ', self.mpn))
+		return ''.join(('Part ', str(self.uid), ': ', str(self.manufacturer), ' ', self.mpn))
 
 class OctopartPartAttribute(object):
 	TYPE_TEXT = 'text'
