@@ -94,7 +94,7 @@ class DataEquivalenceTest(unittest.TestCase):
 	
 	def test_parts_search(self):
 		parts = api.parts_search(q='resistor', limit=10)
-		for part in parts:
+		for part in parts[0]:
 			assert isinstance(part[0], OctopartPart)
 			truth = [part[0].equals_json(x['item']) for x in parts_search_json['results']]
 			assert True in truth
