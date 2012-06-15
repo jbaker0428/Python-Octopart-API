@@ -127,6 +127,7 @@ class DataEquivalenceTest(unittest.TestCase):
 	
 	def test_categories_get(self):
 		json_obj, category = api.categories_get(4174)
+		assert json_obj is not None
 		assert json_obj == categories_get_ref
 		assert isinstance(category, OctopartCategory)
 		assert(category.equals_json(categories_get_ref))
@@ -134,6 +135,7 @@ class DataEquivalenceTest(unittest.TestCase):
 	
 	def test_categories_get_multi(self):
 		json_obj, categories = api.categories_get_multi([4215,4174,4780])
+		assert json_obj is not None
 		assert json_obj == categories_get_multi_ref
 		for category in categories:
 			assert isinstance(category, OctopartCategory)
@@ -144,6 +146,7 @@ class DataEquivalenceTest(unittest.TestCase):
 	
 	def test_categories_search(self):
 		json_obj, categories = api.categories_search(q='resistor')
+		assert json_obj is not None
 		assert json_obj == categories_search_ref
 		for category in categories:
 			assert isinstance(category[0], OctopartCategory)
@@ -154,6 +157,7 @@ class DataEquivalenceTest(unittest.TestCase):
 	
 	def test_parts_get(self):
 		json_obj, part = api.parts_get(39619421)
+		assert json_obj is not None
 		assert json_obj == parts_get_ref
 		assert isinstance(part, OctopartPart)
 		assert(part.equals_json(parts_get_ref))
@@ -161,6 +165,7 @@ class DataEquivalenceTest(unittest.TestCase):
 	
 	def test_parts_get_multi(self):
 		json_obj, parts = api.parts_get_multi([39619421,29035751,31119928])
+		assert json_obj is not None
 		assert json_obj == parts_get_multi_ref
 		for part in parts:
 			assert isinstance(part, OctopartPart)
@@ -171,6 +176,7 @@ class DataEquivalenceTest(unittest.TestCase):
 	
 	def test_parts_search(self):
 		json_obj, parts = api.parts_search(q='resistor', limit=10)
+		assert json_obj is not None
 		json_eq(json_obj, parts_search_ref)
 		for part, highlight in parts:
 			assert isinstance(part, OctopartPart)
@@ -182,12 +188,14 @@ class DataEquivalenceTest(unittest.TestCase):
 	
 	def test_parts_suggest(self):
 		json_obj, results = api.parts_suggest(q='sn74f', limit=3)
+		assert json_obj is not None
 		json_eq(json_obj, parts_suggest_ref)
 		assert json_obj['results'] == results
 		print 'test_parts_suggest OK'
 	
 	def test_parts_match(self):
 		json_obj = api.parts_match(manufacturer_name='texas instruments', mpn='SN74LS240N')
+		assert json_obj is not None
 		assert json_obj == parts_match_ref
 	
 	def tearDown(self):
