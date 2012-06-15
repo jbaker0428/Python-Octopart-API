@@ -186,6 +186,10 @@ class DataEquivalenceTest(unittest.TestCase):
 		assert json_obj['results'] == results
 		print 'test_parts_suggest OK'
 	
+	def test_parts_match(self):
+		json_obj = api.parts_match(manufacturer_name='texas instruments', mpn='SN74LS240N')
+		assert json_obj == parts_match_ref
+	
 	def tearDown(self):
 		unittest.TestCase.tearDown(self)
 
