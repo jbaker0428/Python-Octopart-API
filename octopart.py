@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
 __contributors__ = []
 
@@ -540,7 +540,8 @@ class Octopart(object):
 					v = json.dumps(val, separators=(',',':'))
 				else:
 					v = val
-				arg_strings.append('='.join((arg, str(v))))
+				v = str(v).replace(' ', '+')
+				arg_strings.append('='.join((arg, v)))
 			
 			req_url = '?'.join((req_url, '&'.join(arg_strings)))
 				
