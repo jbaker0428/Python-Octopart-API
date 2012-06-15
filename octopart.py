@@ -278,6 +278,20 @@ class OctopartPart(object):
 			if not class_offer['supplier'].equals_json(json_offer['supplier']):
 				return False
 			return True
+		
+		def compare_specs(class_spec, json_spec):
+			"""Compares two specs.
+			
+			@param class_spec: A spec from an OctopartPart instance.
+			@param json_spec: A spec from a JSON Part resource.
+			"""
+			
+			if not class_spec['attribute'].equals_json(json_spec['attribute']):
+				return False
+			if sorted(class_spec['values']) != sorted(json_spec['values']):
+				return False
+			return True
+		
 		if isinstance(resource, DictType) and resource.get('__class__') == 'Part': 
 			if self.uid != resource.get('uid'):
 				return False
@@ -319,8 +333,11 @@ class OctopartPart(object):
 					truth = [compare_offers(offer, other) for other in sorted(resource.get('offers', []))]
 					if True not in truth:
 						return False
-			if hide_specs is False and sorted(self.specs) != sorted(resource.get('specs', [])):
-				return False
+			if not hide_specs:
+				for spec in sorted(self.specs):
+					truth = [compare_specs(spec, other) for other in sorted(resource.get('specs', []))]
+					if True not in truth:
+						return False
 		else:
 			return False
 		return True
