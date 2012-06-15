@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.5.3"
+__version__ = "0.5.4"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
 __contributors__ = []
 
@@ -1094,7 +1094,7 @@ class Octopart(object):
 		args = self._translate_periods(args)
 		args['lines'] = lines
 		# DictType arguments need to be validated just like the normal args dict
-		lines_required_args = frozenset(('reference',))
+		lines_required_args = frozenset()
 		lines_arg_types = {'q': StringType, \
 					'mpn' : StringType, \
 					'manufacturer' : StringType, \
@@ -1104,7 +1104,7 @@ class Octopart(object):
 					'start' : IntType, \
 					'limit' : IntType, \
 					'reference' : StringType}
-		lines_arg_ranges = {'limit' : range(21)}
+		lines_arg_ranges = {'limit' : (0, 20)}
 		for line in lines:
 			self._validate_args(line, lines_arg_types, lines_arg_ranges)
 			# Method-specific checks not covered by validate_args:
