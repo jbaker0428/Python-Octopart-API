@@ -198,6 +198,14 @@ class DataEquivalenceTest(unittest.TestCase):
 		assert json_obj is not None
 		assert json_obj == parts_match_ref
 	
+	def test_partattributes_get(self):
+		json_obj, attrib = api.partattributes_get('capacitance')
+		assert json_obj is not None
+		assert json_obj == partattributes_get_ref
+		assert isinstance(attrib, OctopartPartAttribute)
+		assert attrib.equals_json(json_obj)
+		print 'test_partattributes_get OK'
+	
 	def tearDown(self):
 		unittest.TestCase.tearDown(self)
 
