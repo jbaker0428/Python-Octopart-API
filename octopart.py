@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
 __contributors__ = []
 
@@ -1029,7 +1029,7 @@ class Octopart(object):
 			else:
 				raise e
 		if json_obj:
-			return json_obj, OctopartPart.new_from_dict(json_obj)
+			return json_obj, OctopartPartAttribute.new_from_dict(json_obj)
 		else:
 			return None
 	
