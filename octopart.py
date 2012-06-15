@@ -283,7 +283,7 @@ class OctopartPart(object):
 				return False
 			if self.mpn != resource.get('mpn'):
 				return False
-			if self.manufacturer != resource.get('manufacturer'):
+			if not self.manufacturer.equals_json(resource.get('manufacturer')):
 				return False
 			if self.detail_url != resource.get('detail_url'):
 				return False
