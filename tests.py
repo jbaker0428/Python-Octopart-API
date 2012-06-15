@@ -206,6 +206,15 @@ class DataEquivalenceTest(unittest.TestCase):
 		assert attrib.equals_json(json_obj)
 		print 'test_partattributes_get OK'
 	
+	def test_partattributes_get_multi(self):
+		json_obj, attribs = api.partattributes_get_multi(['capacitance', 'resistance'])
+		assert json_obj is not None
+		assert json_obj == partattributes_get_multi_ref
+		for attrib in attribs:
+			assert isinstance(attrib, OctopartPartAttribute)
+			assert True in [attrib.equals_json(a) for a in json_obj]
+		print 'test_partattributes_get_multi OK'
+	
 	def tearDown(self):
 		unittest.TestCase.tearDown(self)
 
