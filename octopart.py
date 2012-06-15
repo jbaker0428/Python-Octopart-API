@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.5.4"
+__version__ = "0.5.5"
 __author__ = "Joe Baker <jbaker@alum.wpi.edu>"
 __contributors__ = []
 
@@ -1123,10 +1123,11 @@ class Octopart(object):
 		 
 		@return: A pair containing:
 			-The raw JSON result dictionary. 
-			-A list of 3-item dicts containing:
+			-A list of dicts containing:
 				-A list of OctopartParts.
 				-A reference string.
 				-A status string.
+				-Optionally, the number of search hits.
 		If no JSON object is found without an Exception being raised, returns None.
 		"""
 		
@@ -1145,7 +1146,10 @@ class Octopart(object):
 		if json_obj:
 			for result in json_obj['results']:
 				items = [OctopartPart.new_from_dict(item) for item in result['items']]
-				results.append({'items' : items, 'reference' : result.get('reference', ''), 'status' : result['status']})
+				new_result = {'items' : items, 'reference' : result.get('reference', ''), 'status' : result['status']}
+				if result.get('hits') is not None:
+					new_result['hits'] = result.get('hits')
+				results.append(new_result)
 		
 			return json_obj, results
 		else:
