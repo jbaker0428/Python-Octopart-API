@@ -111,6 +111,8 @@ parts_match_ref = get('http://octopart.com/api/v2/parts/match?manufacturer_name=
 partattributes_get_ref = get('http://octopart.com/api/v2/partattributes/get?fieldname=capacitance&apikey=92bdca1b')
 partattributes_get_multi_ref = get('http://octopart.com/api/v2/partattributes/get_multi?fieldnames=["capacitance","resistance"]&apikey=92bdca1b')
 bom_match_ref = get('http://octopart.com/api/v2/bom/match?lines=%5B%7B%22mpn%22%3A+%22SN74LS240N%22%2C+%22manufacturer%22%3A+%22Texas+Instruments%22%7D%5D&apikey=92bdca1b')
+bom_match_ref = get('http://octopart.com/api/v2/bom/match?lines=[{%22mpn%22%3A+%22SN74LS240N%22%2C+%22manufacturer%22%3A+%22Texas+Instruments%22},' +
+                    '{%22mpn%22%3A+%22RB-220-07A+R%22%2C+%22manufacturer%22%3A+%22C%26K%20Components%22}]&apikey=92bdca1b')
 
 class ArgumentValidationTest(unittest.TestCase):
 	
@@ -213,7 +215,10 @@ class DataEquivalenceTest(unittest.TestCase):
 		print 'test_partattributes_get_multi OK'
 		
 	def test_bom_match(self):
-		json_obj, results = api.bom_match(lines=[{'mpn':'SN74LS240N', 'manufacturer':'Texas Instruments'}])
+		json_obj, results = api.bom_match(lines=[
+            {'mpn':'SN74LS240N', 'manufacturer':'Texas Instruments'},
+            {'mpn':'RB-220-07A R','manufacturer':'C&K Components'}
+            ])
 		assert json_obj is not None
 		json_eq(json_obj, bom_match_ref)
 		
