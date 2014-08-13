@@ -541,6 +541,7 @@ class Octopart(object):
 				else:
 					v = val
 				v = str(v).replace(' ', '+')
+				v = urllib2.quote(v,'[]{}":+,') #replace all others, leave structure untouched
 				arg_strings.append('='.join((arg, v)))
 			
 			req_url = '?'.join((req_url, '&'.join(arg_strings)))
