@@ -1,3 +1,7 @@
+### NOTE: This project is no longer under active development and uses a deprecated version of the API. 
+
+### Use guyzmo's fork at https://github.com/guyzmo/pyoctopart moving forward.
+
 A simple Python client frontend to the Octopart public REST API.
 
 For detailed API documentation, refer to the Octopart API documentation:
